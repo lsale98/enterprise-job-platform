@@ -1,0 +1,18 @@
+{
+  "name": "enterprise-job-platform",
+  "private": true,
+  "packageManager": "pnpm@10.18.3",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "typecheck": "turbo typecheck",
+    "test": "turbo test",
+    "check": "pnpm typecheck && pnpm test",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "turbo": "^2.5.0",
+    "typescript": "^5.9.0",
+    "prettier": "^3.6.0"
+  }
+}

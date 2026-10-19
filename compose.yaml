@@ -1,0 +1,30 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_USER: lab
+      POSTGRES_PASSWORD: lab_local_only
+      POSTGRES_DB: lab
+    ports: ["127.0.0.1:5432:5432"]
+    volumes: ["lab-pg:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lab -d lab"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.8.0
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin_local_only
+    ports: ["127.0.0.1:8080:8080"]
+    volumes: ["./infrastructure/keycloak:/opt/keycloak/data/import:ro"]
+  ollama:
+    image: ollama/ollama:0.12.3
+    profiles: ["ai"]
+    ports: ["127.0.0.1:11434:11434"]
+    volumes: ["lab-ollama:/root/.ollama"]
+volumes:
+  lab-pg:
+  lab-ollama:
