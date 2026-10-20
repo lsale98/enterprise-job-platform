@@ -42,9 +42,9 @@ E2-S2 introduces a small, framework-independent processing engine. The HTTP API,
 Implement the reusable `@lab/engine` package under `packages/engine/` with the following rules:
 
 1. **Bounded concurrency:** `mapConcurrent(items, limit, task, signal?)` validates that `limit` is a positive safe integer, schedules no more than `limit` simultaneous asynchronous tasks, and writes each result at its original input index.
-2. **Failure behavior:** rejection of one scheduled task rejects the aggregate promise. Already-running tasks are **not** forcibly stopped by `Promise.all`; cooperative cancellation must be implemented and tested separately where required.
+2. **Failure behavior:** Rejection of one scheduled task rejects the aggregate promise. Other worker loops are not automatically stopped and may continue executing or scheduling additional tasks. The implementation does not provide fail-fast cancellation of all work. Callers must use cooperative cancellation when further scheduling must be prevented.
 3. **Cancellation:** callers may supply `AbortSignal`. The scheduler checks it before scheduling the next item. A task already in progress can only be interrupted if the task itself supports cancellation. Cancellation is not equivalent to rolling back completed side effects.
-4. **Retry:** `withRetry` enforces a finite `maxAttempts`, uses capped exponential backoff between attempts, and accepts a `retryable` predicate to distinguish transient from permanent failures.
+4. **Retry:** `withRetry` enforces a finite `maxAttempts`, uses capped exponential backoff between attempts, and accepts a `retryable` predicate to distinguish transient from permanent failures. The current implementation retries all errors by default unless a custom predicate is provided. Callers must explicitly classify retryable errors when operations involve external systems or side effects.
 5. **Retry safety:** retry must not be applied indiscriminately to operations that can create duplicate external side effects. Durable idempotency belongs to later persistence/API stories.
 6. **Type safety:** job inputs depend on `@lab/contracts`. Type mappings and exhaustive handling prevent missing job types from silently falling through.
 7. **Caching:** a bounded in-memory LRU/TTL cache may store non-authoritative derived data, never durable job status. It remains local to a process and is not shared between instances.
@@ -91,7 +91,9 @@ Tests must cover, at minimum:
 - A deterministic job execution result is produced for the supported test payload.
 - LRU eviction and TTL expiration behave as specified.
 
-Record actual test counts, command outputs, Git revision, tool versions, and known limitations in `docs/evidence/engine/e2-s2-validation.md`. Do not label a check as passed until it has been executed successfully.
+Record the actual verification results, Git revision, execution date, Node.js version, pnpm version, acceptance criteria status, and known limitations in `docs/evidence/engine/e2-s2-validation.md`.
+
+All verification commands must pass before marking E2-S2 as DONE.
 
 ## 7. Revisit criteria
 
