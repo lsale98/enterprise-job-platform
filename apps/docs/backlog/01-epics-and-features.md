@@ -3,6 +3,7 @@
 ## Epic 1 — Project Foundation
 
 ### Features
+
 - repository setup
 - monorepo tooling
 - code quality tooling
@@ -12,6 +13,7 @@
 ## Epic 2 — Shared Contracts and Core Engine
 
 ### Features
+
 - shared TypeScript contracts
 - concurrency utilities
 - retry and cancellation logic
@@ -21,6 +23,7 @@
 ## Epic 3 — Persistence and Data Model
 
 ### Features
+
 - database schema design
 - migrations
 - repositories / data access layer
@@ -30,6 +33,7 @@
 ## Epic 4 — Identity and Access Management
 
 ### Features
+
 - OIDC integration
 - session handling
 - organization model
@@ -39,6 +43,7 @@
 ## Epic 5 — Job Management API
 
 ### Features
+
 - create job endpoint
 - list/filter jobs endpoint
 - job details endpoint
@@ -49,6 +54,7 @@
 ## Epic 6 — Background Processing and Reliability
 
 ### Features
+
 - queue polling
 - lease acquisition
 - heartbeat updates
@@ -59,6 +65,7 @@
 ## Epic 7 — Notifications and Outbox
 
 ### Features
+
 - outbox table
 - dispatcher service
 - signed webhook delivery
@@ -68,6 +75,7 @@
 ## Epic 8 — Operator Web Application
 
 ### Features
+
 - login flow
 - tenant-aware navigation
 - jobs table
@@ -78,6 +86,7 @@
 ## Epic 9 — Security and Quality Assurance
 
 ### Features
+
 - auth tests
 - authorization tests
 - tenant isolation tests
@@ -88,6 +97,7 @@
 ## Epic 10 — AI-Assisted Analysis
 
 ### Features
+
 - document ingestion metadata
 - embeddings storage
 - tenant-scoped retrieval
@@ -98,6 +108,7 @@
 ## Epic 11 — Performance and Load Validation
 
 ### Features
+
 - CPU and memory profiling
 - API load tests
 - stress tests
@@ -108,6 +119,7 @@
 ## Epic 12 — Deployment and Operations
 
 ### Features
+
 - Dockerization
 - CI pipeline
 - deployment workflow
@@ -115,3 +127,12 @@
 - backup / restore
 - runbooks
 - rollback checklist
+- Kubernetes orchestration as an optional deployment target
+- K3d-based local Kubernetes environment
+- Kubernetes Deployments and internal Services
+- Kustomize overlays for local, staging, and production
+- Kubernetes database migration Jobs
+- Container health probes and resource management
+- Horizontal Pod Autoscaler evaluation
+- Kubernetes security and secrets management
+- Rolling updates, rollback, and failure recovery testing

@@ -6,15 +6,15 @@
 
 ## Environment matrix
 
-| Concern | Local development | Staging | Production |
-| --- | --- | --- | --- |
-| Purpose | Fast feedback / feature work | Integrated release verification | Live authorized business use |
-| Identity | Dedicated development OIDC realm | Separate test realm | Approved corporate identity configuration |
-| Database | Local PostgreSQL container | Isolated test database | Managed or operationally supported database |
-| Secrets | Local, uncommitted environment variables | Secret manager / protected variables | Secret manager with controlled access/rotation |
-| External webhooks | Controlled test receiver | Sandbox destinations | Approved HTTPS destinations |
-| AI inputs | Synthetic documents | Non-sensitive, approved test fixtures | Only authorized data under a documented policy |
-| Monitoring | Console and basic metrics | Metrics/logs/traces plus alerts validation | Monitored SLOs and incident ownership |
+| Concern           | Local development                        | Staging                                    | Production                                     |
+| ----------------- | ---------------------------------------- | ------------------------------------------ | ---------------------------------------------- |
+| Purpose           | Fast feedback / feature work             | Integrated release verification            | Live authorized business use                   |
+| Identity          | Dedicated development OIDC realm         | Separate test realm                        | Approved corporate identity configuration      |
+| Database          | Local PostgreSQL container               | Isolated test database                     | Managed or operationally supported database    |
+| Secrets           | Local, uncommitted environment variables | Secret manager / protected variables       | Secret manager with controlled access/rotation |
+| External webhooks | Controlled test receiver                 | Sandbox destinations                       | Approved HTTPS destinations                    |
+| AI inputs         | Synthetic documents                      | Non-sensitive, approved test fixtures      | Only authorized data under a documented policy |
+| Monitoring        | Console and basic metrics                | Metrics/logs/traces plus alerts validation | Monitored SLOs and incident ownership          |
 
 **Important:** Production must never reuse local Keycloak credentials, example secrets or development URLs.
 
@@ -40,6 +40,33 @@ Running processes can share source packages without being forced to scale togeth
 - Only approved systems may access administrative identity endpoints.
 - Outbound webhook destinations must use HTTPS in staging/production and should be allowlisted when possible.
 - Apply TLS, origin controls, secure cookies, network restrictions and rate limits according to threat model.
+
+## Optional Kubernetes Deployment Track
+
+Kubernetes is introduced as an additional orchestration option, without replacing the original application architecture.
+
+### Local environment
+
+- Docker Compose remains the primary development workflow.
+- K3d provides a local Kubernetes learning and verification environment.
+- Local Kubernetes resources are not considered production-ready.
+
+### Staging environment
+
+- Use Kubernetes Deployments and Services.
+- Use Kustomize for environment configuration.
+- Use a separately managed PostgreSQL database and OIDC provider.
+- Validate authentication, authorization, tenant isolation, and workload recovery.
+
+### Production environment
+
+- Deploy only immutable, tested container images.
+- Require a production-approved HTTPS ingress and secrets strategy.
+- Execute database migrations through controlled release Jobs.
+- Verify backup, restore, monitoring, and rollback procedures.
+- Record release evidence and operational ownership.
+
+The Kubernetes track is associated with E12-S2 and ADR-012.
 
 ## Deployment sequence
 
