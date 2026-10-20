@@ -142,7 +142,6 @@ Each phase should end with a usable checkpoint and documented evidence.
 
 ### Deliverables
 
-- ADR-012: Kubernetes orchestration decision
 - Local K3d deployment
 - Kubernetes base manifests
 - Customize environment overlays
