@@ -31,6 +31,19 @@ importers:
         specifier: ^5.9.0
         version: 5.9.3
 
+  packages/engine:
+    dependencies:
+      '@lab/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+    devDependencies:
+      '@types/node':
+        specifier: ^22.0.0
+        version: 22.20.5
+      typescript:
+        specifier: ^5.9.0
+        version: 5.9.3
+
 packages:
 
   '@turbo/darwin-64@2.11.9':
