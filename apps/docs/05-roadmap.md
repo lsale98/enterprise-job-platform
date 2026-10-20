@@ -145,7 +145,7 @@ Each phase should end with a usable checkpoint and documented evidence.
 - ADR-012: Kubernetes orchestration decision
 - Local K3d deployment
 - Kubernetes base manifests
-- Kustomize environment overlays
+- Customize environment overlays
 - Database migration Jobs
 - Resource requests, limits, and health probes
 - Kubernetes CI validation
