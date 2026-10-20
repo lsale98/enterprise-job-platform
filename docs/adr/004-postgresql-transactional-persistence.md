@@ -1,249 +1,168 @@
 # ADR-004 — PostgreSQL as the Transactional Persistence Boundary
 
-| Field                 | Value                                                       |
-| --------------------- | ----------------------------------------------------------- |
-| Status                | Accepted for E3-S1 implementation                           |
-| Date                  | 2026-10-20                                                  |
-| Epic                  | E3 — Persistence and Data Model                             |
-| User story            | E3-S1 — Database Schema                                     |
-| Scope                 | `packages/database/`                                        |
-| Related ADRs          | ADR-001 — Monorepo Architecture; ADR-002 — Shared Contracts |
-| Verification evidence | `docs/evidence/database/e3-s1-validation.md`                |
+| Field                 | Value                                        |
+| --------------------- | -------------------------------------------- |
+| Status                | Accepted for E3-S1 implementation            |
+| Date                  | 2026-10-20                                   |
+| Epic                  | E3 — PostgreSQL Persistence                  |
+| User story            | E3-S1 — Database Schema                      |
+| Scope                 | `packages/database/`, schema and migrations  |
+| Related ADRs          | ADR-001, ADR-002, ADR-003                    |
+| Verification evidence | `docs/evidence/database/e3-s1-validation.md` |
 
 ## 1. Context
 
-The Enterprise Job Platform requires durable storage for jobs, organizations, identities, memberships, audit events, and related business records.
+The Enterprise Job Platform requires durable storage for tenants, identities, memberships, jobs, imported records, notification records, audit events, and knowledge documents.
 
-In-memory storage is insufficient because application restarts or process failures would result in data loss. Additionally, multiple API and worker instances must access consistent shared data.
+In-memory storage cannot guarantee persistence across process restarts or consistency between independently running services.
 
-The database must enforce relationships and business invariants independently of application-level validation.
+The database must enforce critical relationships and business invariants independently of application-level validation.
 
-E3-S1 establishes the database schema, versioned migrations, transactional database access, and local development seed data.
+E3-S1 establishes the relational schema, versioned migrations, transactional database access, and local development seed data.
 
-Implementation of idempotency persistence behavior belongs to E3-S2. HTTP request handling and distributed worker recovery belong to later stories.
+Idempotent job creation, HTTP request handling, distributed worker recovery, and notification delivery are outside the scope of this story.
 
 ## 2. Decision drivers
 
-- Persist business data across application restarts.
-- Enforce relational integrity through primary keys and foreign keys.
-- Support multi-tenant data organization.
-- Prevent invalid database states through constraints.
-- Provide transactional guarantees for related operations.
-- Maintain a versioned and reproducible schema.
-- Support efficient queries through appropriate indexes.
-- Enable safe and repeatable database migrations.
-- Keep database infrastructure independent of HTTP and UI frameworks.
-- Support future job processing, notification outbox, and AI/RAG workloads.
+- Persist domain data across application restarts.
+- Enforce relational integrity through database constraints.
+- Support tenant-scoped business data.
+- Provide atomic transactions for related changes.
+- Maintain an ordered and reproducible migration history.
+- Support efficient access through indexes.
+- Keep persistence independent of the HTTP and UI frameworks.
+- Prepare the database for future worker, outbox, and AI/RAG functionality.
+- Make schema correctness verifiable through automated SQL checks.
 
 ## 3. Alternatives considered
 
-| Alternative                                                 | Advantages                                                                                                 | Trade-offs                                                                              |
-| ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| In-memory storage                                           | Simple implementation and fast access                                                                      | No durability or consistency across processes                                           |
-| Document database                                           | Flexible schemas and document-oriented storage                                                             | Relational constraints and transactional workflows require additional consideration     |
-| PostgreSQL with an external message broker                  | Independent messaging infrastructure and scaling options                                                   | Increased operational complexity and distributed consistency challenges                 |
-| **PostgreSQL with transactions and relational constraints** | Strong integrity guarantees, durable storage, mature tooling, JSONB support, and transactional consistency | Requires schema management, connection management, indexing, and operational monitoring |
+| Alternative                                                 | Advantages                                                 | Trade-offs                                                           |
+| ----------------------------------------------------------- | ---------------------------------------------------------- | -------------------------------------------------------------------- |
+| In-memory storage                                           | Simple and fast for local execution                        | No durable or shared transactional state                             |
+| Document database                                           | Flexible document structures                               | Relational invariants require additional design                      |
+| Separate broker and database                                | Independent message-processing infrastructure              | Increased operational complexity and consistency challenges          |
+| **PostgreSQL with relational constraints and transactions** | ACID transactions, strong integrity, JSONB, mature tooling | Requires migrations, connection management, indexing, and monitoring |
 
 ## 4. Decision
 
-Use **PostgreSQL as the authoritative transactional data store** for the Enterprise Job Platform.
+Use PostgreSQL as the authoritative transactional database for the Enterprise Job Platform.
 
-Implement a reusable `@lab/database` workspace package under `packages/database/`.
+### 4.1 Database package
 
-The following architectural rules apply.
+Create `@lab/database` under `packages/database/`.
 
-### 4.1 Relational data model
+The package provides connection pooling, parameterized queries, transaction handling, migrations, and development seed functionality.
 
-Define database tables for:
+### 4.2 Schema ownership
 
-- Tenants
-- Identities
-- Memberships
-- Jobs
-- Imported records
-- Notification outbox
-- Audit events
-- Knowledge documents
+Store ordered SQL migrations in `packages/database/migrations/`.
 
-Use explicit primary keys, foreign keys, and appropriate data types.
+Once a migration has been applied to a persistent environment, its contents must remain unchanged. Future schema modifications require a new migration.
 
-### 4.2 Multi-tenant data model
+### 4.3 Relational integrity
 
-Tenant-owned business records must contain a `tenant_id` referencing the owning organization.
+Use primary keys, foreign keys, unique constraints, non-null constraints, and check constraints to protect persisted data.
 
-Queries accessing tenant-owned data must explicitly enforce tenant boundaries.
+Tenant-owned business tables include a tenant identifier.
 
-Foreign keys alone do not provide complete tenant isolation. Authorization and tenant-scoped access controls will be implemented and verified in subsequent stories.
+Tenant identifiers and foreign keys alone do not guarantee tenant isolation. Authorization and tenant-scoped query enforcement belong to subsequent stories.
 
-### 4.3 Database constraints
+### 4.4 Job persistence
 
-Enforce critical invariants at the database level through:
+Persist job identity, ownership, type, input, status, result, retry metadata, and timestamps.
 
-- `PRIMARY KEY`
-- `FOREIGN KEY`
-- `UNIQUE`
-- `NOT NULL`
-- `CHECK`
+Use JSONB for structured job payloads while enforcing lifecycle values through relational constraints.
 
-The `jobs` table includes a unique constraint on `(tenant_id, idempotency_key)`.
+Define a unique constraint on `(tenant_id, idempotency_key)` as the persistence foundation for E3-S2.
 
-This constraint establishes the database foundation for idempotency. The application-level behavior for repeated requests will be implemented and tested in E3-S2.
+The constraint does not by itself implement idempotent HTTP request semantics.
 
-### 4.4 Transactional operations
+### 4.5 Transactions
 
-Provide a reusable transaction helper that:
+Related database operations must execute within an explicit transaction where atomicity is required.
 
-1. Acquires a database connection.
-2. Begins a transaction.
-3. Executes related operations.
-4. Commits when all operations succeed.
-5. Rolls back when an operation fails.
-6. Releases the connection.
+The transaction helper begins a transaction, commits on success, rolls back on failure, and releases the database connection.
 
-Transactions must not silently leave partial changes after an error.
+### 4.6 Migrations
 
-### 4.5 Versioned migrations
+Use a `schema_migrations` table to record applied migration filenames.
 
-Store SQL migrations under `packages/database/migrations/`.
+Use PostgreSQL advisory transaction locks to coordinate migration execution.
 
-Each migration must:
+Running migrations again must not reapply previously recorded changes.
 
-- Have a unique, ordered filename.
-- Be tracked in the `schema_migrations` table.
-- Execute in a controlled transaction when supported.
-- Avoid duplicate application.
-- Preserve historical migration files after they have been applied.
+### 4.7 Indexing
 
-The migration runner uses PostgreSQL advisory transaction locks to coordinate concurrent migration execution.
+Create indexes for expected access patterns, including tenant-scoped job listings, available job lookups, audit events, and knowledge documents.
 
-Schema changes introduced after a migration has been deployed must be implemented through new migration files.
+Production indexing decisions must be reviewed against representative query plans and measured workloads.
 
-### 4.6 Indexing
+### 4.8 Development seed
 
-Create indexes based on expected access patterns, including:
+Provide deterministic local tenants, identities, and memberships for development verification.
 
-- Tenant-scoped job listing.
-- Available job lookup.
-- Tenant-scoped audit history.
-- Tenant-scoped knowledge document retrieval.
-
-Indexing decisions must eventually be validated using query plans and representative workloads.
-
-### 4.7 Connection management
-
-Use the PostgreSQL connection pool provided by the `pg` package.
-
-The initial pool configuration is suitable for local development and must be reviewed against measured workload, database connection limits, and deployment topology before production use.
-
-### 4.8 Local development seed
-
-Provide deterministic local seed data for test organizations and users.
-
-Seed operations must not be executed against production databases.
+The seed script must not be executed against production data.
 
 ### 4.9 PostgreSQL extensions
 
-Enable required PostgreSQL extensions through versioned migrations.
+Enable `pgcrypto` and `pgvector` in the initial schema.
 
-The initial schema supports `pgcrypto` and `pgvector`.
-
-Vector storage is prepared for a future AI/RAG story. This decision does not imply that vector retrieval has already been implemented or validated.
+Vector storage prepares the database for a later AI/RAG story; this decision does not implement retrieval or embeddings.
 
 ## 5. Consequences
 
 ### Positive
 
-- Business data survives application process restarts.
-- Relational constraints protect critical data invariants.
-- Transactions support atomic multi-step operations.
-- A shared schema provides consistent persistence across services.
-- Versioned migrations make schema evolution traceable.
-- PostgreSQL supports relational data, JSONB, and future vector workloads.
-- Database-level uniqueness provides a foundation for idempotent operations.
+- Durable relational storage across process restarts.
+- Database-enforced integrity constraints.
+- Atomic multi-step persistence operations.
+- A consistent database foundation for API and worker services.
+- Traceable database evolution through migrations.
+- Support for JSONB and future vector workloads.
 
 ### Costs and risks
 
-- PostgreSQL becomes a critical shared infrastructure dependency.
-- Database performance depends on query design and indexing.
-- Connection pools must be configured appropriately.
-- Schema changes require migration planning and compatibility checks.
-- Tenant identifiers and foreign keys alone do not guarantee tenant isolation.
-- Long-running transactions can increase lock contention.
-- Database backups, restoration, monitoring, and production migration procedures must be addressed in operational stories.
+- PostgreSQL is a critical shared infrastructure dependency.
+- Long-running transactions can introduce lock contention.
+- Connection pools require capacity planning.
+- Schema changes require deployment compatibility checks.
+- Tenant isolation must be enforced beyond basic foreign keys.
+- Database backups and restoration procedures are required for production.
+- Job and outbox tables do not automatically provide distributed execution guarantees.
 
 ## 6. Verification and acceptance evidence
 
-Run the following commands from the repository root after configuring the local PostgreSQL environment.
+The following checks are required:
 
-```powershell
-docker compose up -d postgres
+- The database package builds successfully.
+- Type checking passes.
+- The initial migration applies successfully.
+- Re-running the migration does not duplicate its execution.
+- Required database tables and indexes exist.
+- Foreign key, check, and unique constraints reject invalid records.
+- An explicit transaction rollback discards uncommitted changes.
+- Seed data creates the expected tenants and memberships.
+- Restarting the application process does not erase persisted data.
 
-pnpm install
+Store actual verification results in `docs/evidence/database/e3-s1-validation.md`.
 
-pnpm --filter @lab/database build
-pnpm --filter @lab/database typecheck
+The Evidence document must contain the execution date, Git revision, tool versions, command statuses, acceptance criteria, and known limitations.
 
-pnpm --filter @lab/database migrate
-pnpm --filter @lab/database seed
-```
-
-### Required verification
-
-- Database package builds successfully.
-- TypeScript type checking passes.
-- SQL migrations complete without errors.
-- Re-running migrations does not apply previously recorded migrations again.
-- Required tables exist.
-- Primary and foreign key constraints exist.
-- Check constraints reject invalid values.
-- Unique constraints reject conflicting records.
-- Transaction rollback prevents partial writes.
-- Local seed creates the expected organizations and identities.
-- Required indexes exist.
-- The schema migration history accurately records applied files.
-
-### Database inspection
-
-```powershell
-docker compose exec postgres psql -U lab -d lab -c "SELECT filename FROM schema_migrations ORDER BY filename;"
-
-docker compose exec postgres psql -U lab -d lab -c "SELECT name FROM tenants;"
-
-docker compose exec postgres psql -U lab -d lab -c "\d jobs"
-```
-
-Verification results must reflect actual execution.
-
-Record the execution date, Git revision, Node.js version, pnpm version, verification statuses, acceptance criteria, and known limitations in:
-
-`docs/evidence/database/e3-s1-validation.md`
-
-E3-S1 must not be marked as DONE until all required acceptance checks have passed.
+E3-S1 must not be marked DONE until the required checks have passed.
 
 ## 7. Revisit criteria
 
-Reconsider this decision when:
+Reconsider the architecture if measured database contention, connection saturation, deployment requirements, recovery objectives, tenancy requirements, or job throughput exceed the current design.
 
-- Measured database contention becomes unacceptable.
-- Connection limits become a significant bottleneck.
-- Job processing throughput exceeds the selected storage architecture.
-- Multi-tenant isolation requirements demand stronger database-level enforcement.
-- Regulatory requirements require physical data separation.
-- Schema migration complexity prevents safe independent service releases.
-- Database availability or recovery requirements exceed the current hosting architecture.
-
-Architectural changes must be documented through a new ADR rather than silently rewriting this accepted decision.
+A replacement decision must be documented in a new ADR rather than silently rewriting the historical decision.
 
 ## 8. Traceability
 
 - **Epic:** E3 — PostgreSQL Persistence
 - **Story:** E3-S1 — Database Schema
 - **Backlog:** `docs/backlog/02-user-stories-and-tasks.md`
-- **Learning material:** `apps/docs/03-POSTGRESQL.md`
 - **Implementation:** `packages/database/`
 - **Migrations:** `packages/database/migrations/`
-- **Verification evidence:** `docs/evidence/database/e3-s1-validation.md`
-- **Previous ADR:** `docs/adr/003-bounded-concurrency-and-retry.md`
-- **Next story:** E3-S2 — Idempotency Persistence
-
-This decision establishes the durable relational foundation for subsequent authentication, API, worker, outbox, and AI/RAG functionality.
+- **Verification:** `docs/evidence/database/e3-s1-validation.md`
+- **Previous decision:** `docs/adr/003-bounded-concurrency-and-retry.md`
+- **Following story:** E3-S2 — Idempotency Persistence
