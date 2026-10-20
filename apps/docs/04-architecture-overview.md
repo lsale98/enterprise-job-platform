@@ -18,21 +18,27 @@ This approach is selected to keep complexity manageable while preserving clear b
 ## High-level components
 
 ### Web Application
+
 A Next.js application used by authenticated users to view and operate jobs.
 
 ### HTTP API
+
 A backend service exposing job, auth-context, and operational endpoints.
 
 ### Worker
+
 A background process responsible for executing queued jobs and updating job state.
 
 ### PostgreSQL
+
 The primary database for tenants, users, jobs, attempts, audit records, idempotency records, and RAG-related metadata.
 
 ### Identity Provider
+
 An OIDC-compatible provider (for example Keycloak) used for authentication.
 
 ### AI Subsystem
+
 A tenant-scoped retrieval and generation flow using stored embeddings and a local or approved model runtime.
 
 ## Main architectural decisions
@@ -71,8 +77,6 @@ repo-root/
 │   └── runbooks/
 └── infrastructure/
 ```
-
-**Note:** Local-only learning materials under `apps/docs/` are excluded from the public repository via `.gitignore`. Public documents live under root `docs/`.
 
 ## Data boundaries
 

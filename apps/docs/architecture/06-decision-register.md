@@ -5,19 +5,20 @@
 
 This register is **public project documentation**. Full Architecture Decision Records (ADRs) should live in `docs/adr/` as implementation proceeds. Do not mark an unreviewed decision as production-approved.
 
-| ID | Decision topic | Baseline choice | Alternative worth reviewing | Review trigger |
-| --- | --- | --- | --- | --- |
-| ADR-001 | Repository and runtime boundaries | pnpm/Turborepo modular monorepo; separate deployable processes | Multiple repositories / microservices | Independent team release needs |
-| ADR-002 | Controlled concurrency | Bounded concurrent I/O and explicit retries | Unbounded Promise concurrency | Resource exhaustion / throughput limits |
-| ADR-003 | Transaction boundary | PostgreSQL transactions and constraints | Application-only consistency | New cross-service consistency needs |
-| ADR-004 | Identity and tenancy | OIDC provider + API RBAC and current membership checks | Custom authentication / claim-only authorization | New compliance or federation requirements |
-| ADR-005 | HTTP idempotency | Tenant-scoped uniqueness and request fingerprint | Redis-only dedup | New retention / latency requirement |
-| ADR-006 | Job delivery semantics | PostgreSQL queue, lease and at-least-once processing | External broker / managed queue | Database queue saturation |
-| ADR-007 | External notifications | Transactional outbox with signed webhooks | Direct send inside transaction | Delivery or integration requirements change |
-| ADR-008 | Web rendering boundary | Next.js App Router / server-first data access | Client-only SPA + polling | Rich real-time interaction requirements |
-| ADR-009 | Tenant-scoped AI retrieval | Tenant-filtered pgvector retrieval and local model | Hosted AI / keyword-only search | Quality, cost, data residency, SLO |
-| ADR-010 | Capacity validation | Profile and measure before sizing | Guess-based VM sizing | Representative benchmark contradicts plan |
-| ADR-011 | Deployment model | Separate web/API/worker/dispatcher runtimes and managed production dependencies where appropriate | Single process, Kubernetes, fully managed platform | Reliability, cost or team scale requirements |
+| ID      | Decision topic                    | Baseline choice                                                                                                   | Alternative worth reviewing                        | Review trigger                                                    |
+| ------- | --------------------------------- | ----------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- | ----------------------------------------------------------------- |
+| ADR-001 | Repository and runtime boundaries | pnpm/Turborepo modular monorepo; separate deployable processes                                                    | Multiple repositories / microservices              | Independent team release needs                                    |
+| ADR-002 | Controlled concurrency            | Bounded concurrent I/O and explicit retries                                                                       | Unbounded Promise concurrency                      | Resource exhaustion / throughput limits                           |
+| ADR-003 | Transaction boundary              | PostgreSQL transactions and constraints                                                                           | Application-only consistency                       | New cross-service consistency needs                               |
+| ADR-004 | Identity and tenancy              | OIDC provider + API RBAC and current membership checks                                                            | Custom authentication / claim-only authorization   | New compliance or federation requirements                         |
+| ADR-005 | HTTP idempotency                  | Tenant-scoped uniqueness and request fingerprint                                                                  | Redis-only dedup                                   | New retention / latency requirement                               |
+| ADR-006 | Job delivery semantics            | PostgreSQL queue, lease and at-least-once processing                                                              | External broker / managed queue                    | Database queue saturation                                         |
+| ADR-007 | External notifications            | Transactional outbox with signed webhooks                                                                         | Direct send inside transaction                     | Delivery or integration requirements change                       |
+| ADR-008 | Web rendering boundary            | Next.js App Router / server-first data access                                                                     | Client-only SPA + polling                          | Rich real-time interaction requirements                           |
+| ADR-009 | Tenant-scoped AI retrieval        | Tenant-filtered pgvector retrieval and local model                                                                | Hosted AI / keyword-only search                    | Quality, cost, data residency, SLO                                |
+| ADR-010 | Capacity validation               | Profile and measure before sizing                                                                                 | Guess-based VM sizing                              | Representative benchmark contradicts plan                         |
+| ADR-011 | Deployment model                  | Separate web/API/worker/dispatcher runtimes and managed production dependencies where appropriate                 | Single process, Kubernetes, fully managed platform | Reliability, cost or team scale requirements                      |
+| ADR-012 | Kubernetes orchestration          | Keep Docker Compose for local development; add Kubernetes with K3d and Kustomize as an optional deployment target | VPS with Compose / Managed PaaS                    | Operational complexity, cost, scaling, SLO, or compliance changes |
 
 ## Review process
 

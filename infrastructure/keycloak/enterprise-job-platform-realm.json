@@ -7,12 +7,12 @@
   "bruteForceProtected": true,
   "clients": [
     {
-      "clientId": "lab-web",
-      "name": "Next.js Auth.js OIDC Client",
+      "clientId": "enterprise-job-platform-web",
+      "name": "Enterprise Job Platform - Web",
       "enabled": true,
       "protocol": "openid-connect",
       "publicClient": false,
-      "secret": "lab-web-secret-local",
+      "secret": "enterprise-job-platform-web-secret-local",
       "standardFlowEnabled": true,
       "directAccessGrantsEnabled": false,
       "redirectUris": ["http://localhost:3000/api/auth/callback/keycloak"],
