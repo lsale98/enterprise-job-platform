@@ -6,17 +6,26 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./dist/index.js"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./job-repository": {
+      "types": "./dist/job-repository.d.ts",
+      "default": "./dist/job-repository.js"
+    }
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "migrate": "node dist/migrate.js",
-    "seed": "node dist/seed.js"
+    "seed": "node dist/seed.js",
+    "test:integration": "node --test dist/job-repository.integration.test.js"
   },
   "dependencies": {
     "pg": "^8.16.0",
-    "dotenv": "^17.0.0"
+    "dotenv": "^17.0.0",
+    "@lab/contracts": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

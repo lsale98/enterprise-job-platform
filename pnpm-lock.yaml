@@ -33,6 +33,9 @@ importers:
 
   packages/database:
     dependencies:
+      '@lab/contracts':
+        specifier: workspace:*
+        version: link:../contracts
       dotenv:
         specifier: ^17.0.0
         version: 17.4.2
