@@ -4,7 +4,7 @@
 | --------------------- | -------------------------------------------- |
 | Status                | Accepted for E3-S1 implementation            |
 | Date                  | 2026-10-20                                   |
-| Epic                  | E3 — PostgreSQL Persistence                  |
+| Epic                  | E3 — Persistence and Data Model              |
 | User story            | E3-S1 — Database Schema                      |
 | Scope                 | `packages/database/`, schema and migrations  |
 | Related ADRs          | ADR-001, ADR-002, ADR-003                    |
@@ -158,7 +158,7 @@ A replacement decision must be documented in a new ADR rather than silently rewr
 
 ## 8. Traceability
 
-- **Epic:** E3 — PostgreSQL Persistence
+- **Epic:** E3 — Persistence and Data Model
 - **Story:** E3-S1 — Database Schema
 - **Backlog:** `docs/backlog/02-user-stories-and-tasks.md`
 - **Implementation:** `packages/database/`
