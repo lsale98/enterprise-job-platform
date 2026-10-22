@@ -1,13 +1,14 @@
 # ADR-002 — Shared TypeScript Contracts and Runtime Validation
 
-| Field              | Value                                                                  |
-| ------------------ | ---------------------------------------------------------------------- |
-| **Status**         | Accepted — for the Enterprise Job Platform implementation              |
-| **Date**           | 2026-10-20                                                             |
-| **Decision owner** | Aleksandar Lakatos                                                     |
-| **Epic**           | E2 — Shared Contracts and Core Engine                                  |
-| **User story**     | E2-S1 — Shared Contracts                                               |
-| **Scope**          | `packages/contracts/`; does not include the processing engine in E2-S2 |
+| Field                 | Value                                                                  |
+| --------------------- | ---------------------------------------------------------------------- |
+| Status                | Accepted — for the Enterprise Job Platform implementation              |
+| Date                  | 2026-10-20                                                             |
+| Epic                  | E2 — Shared Contracts and Core Engine                                  |
+| User story            | E2-S1 — Shared Contracts                                               |
+| Scope                 | `packages/contracts/`; does not include the processing engine in E2-S2 |
+| Related ADRs          | ADR-001 — Modular monorepo and runtime boundaries                      |
+| Verification evidence | `docs/evidence/contracts/e2-s1-validation.md`                          |
 
 ## 1. Context and problem
 
