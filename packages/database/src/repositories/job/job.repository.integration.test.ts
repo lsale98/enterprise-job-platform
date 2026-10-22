@@ -4,8 +4,8 @@ import { randomUUID } from "node:crypto";
 import {
   createJobIdempotently,
   IdempotencyConflictError,
-} from "./job-repository.js";
-import { pool } from "./index.js";
+} from "./job.repository.js";
+import { pool } from "../../connection/pool.js";
 
 const tenantA = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
 const tenantB = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";

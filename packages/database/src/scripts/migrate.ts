@@ -1,8 +1,8 @@
 import { readdir, readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
-import { pool, transaction } from "./index.js";
+import { pool, transaction } from "../index.js";
 
-const dir = fileURLToPath(new URL("../migrations/", import.meta.url));
+const dir = fileURLToPath(new URL("../../migrations/", import.meta.url));
 
 try {
   await pool.query(`
@@ -27,7 +27,7 @@ try {
     }
 
     const sql = await readFile(
-      new URL(`../migrations/${filename}`, import.meta.url),
+      new URL(`../../migrations/${filename}`, import.meta.url),
       "utf8",
     );
 
