@@ -1,0 +1,30 @@
+{
+  "name": "@lab/auth",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "node --test dist/index.test.js",
+    "verify:local": "node dist/verify-local.js",
+    "login:local": "node dist/local-oidc-login.js"
+  },
+  "dependencies": {
+    "dotenv": "^17.0.0",
+    "jose": "^6.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "openid-client": "^6.8.8",
+    "typescript": "^5.9.0"
+  }
+}
