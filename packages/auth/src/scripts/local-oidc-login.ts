@@ -2,11 +2,11 @@ import { createServer } from "node:http";
 import { fileURLToPath } from "node:url";
 import { config as loadEnv } from "dotenv";
 import * as oidc from "openid-client";
-import { createAccessTokenVerifier } from "./index.js";
+import { createAccessTokenVerifier } from "../authentication/access-token.verifier.js";
 
 // Read the local .env from the repository root.
 loadEnv({
-  path: fileURLToPath(new URL("../../../.env", import.meta.url)),
+  path: fileURLToPath(new URL("../../../../.env", import.meta.url)),
 });
 
 if (process.env.NODE_ENV === "production") {

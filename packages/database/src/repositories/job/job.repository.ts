@@ -5,7 +5,7 @@ import {
   type JobStatus,
   type JobType,
 } from "@lab/contracts";
-import { transaction } from "./index.js";
+import { transaction } from "../../connection/transaction.js";
 
 export interface PersistedJob {
   id: string;

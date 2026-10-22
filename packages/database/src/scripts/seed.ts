@@ -1,4 +1,4 @@
-import { pool, transaction } from "./index.js";
+import { pool, transaction } from "../index.js";
 
 // Local demo identities only.
 // Never execute seed scripts against customer databases.

@@ -1,6 +1,6 @@
 {
   "name": "@lab/database",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
   "main": "./dist/index.js",
@@ -11,16 +11,20 @@
       "default": "./dist/index.js"
     },
     "./job-repository": {
-      "types": "./dist/job-repository.d.ts",
-      "default": "./dist/job-repository.js"
+      "types": "./dist/repositories/job/job.repository.d.ts",
+      "default": "./dist/repositories/job/job.repository.js"
+    },
+    "./membership-repository": {
+      "types": "./dist/repositories/membership/membership.repository.d.ts",
+      "default": "./dist/repositories/membership/membership.repository.js"
     }
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "migrate": "node dist/migrate.js",
-    "seed": "node dist/seed.js",
-    "test:integration": "node --test dist/job-repository.integration.test.js"
+    "migrate": "node dist/scripts/migrate.js",
+    "seed": "node dist/scripts/seed.js",
+    "test:integration": "node --test dist/repositories/job/job.repository.integration.test.js"
   },
   "dependencies": {
     "pg": "^8.16.0",

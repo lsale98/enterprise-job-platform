@@ -20,6 +20,12 @@ importers:
 
   packages/auth:
     dependencies:
+      '@lab/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+      '@lab/database':
+        specifier: workspace:*
+        version: link:../database
       dotenv:
         specifier: ^17.0.0
         version: 17.4.2
