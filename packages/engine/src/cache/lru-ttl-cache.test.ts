@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { LruTtlCache } from "./lru.js";
+import { LruTtlCache } from "./lru-ttl-cache.js";
 test("LRU evicts least recently used and refreshes access order", () => {
   const cache = new LruTtlCache<string, number>(2, 1000);
   cache.set("a", 1);
