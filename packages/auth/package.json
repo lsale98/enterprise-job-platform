@@ -14,11 +14,14 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "node --test dist/authentication/access-token.verifier.test.js",
+    "test": "node --test dist/authentication/access-token.verifier.test.js dist/authorization/authorize.test.js",
+    "test:integration": "node --env-file=../../.env --test dist/authorization/authorize.integration.test.js",
     "verify:local": "node dist/scripts/verify-local.js",
     "login:local": "node dist/scripts/local-oidc-login.js"
   },
   "dependencies": {
+    "@lab/contracts": "workspace:*",
+    "@lab/database": "workspace:*",
     "dotenv": "^17.0.0",
     "jose": "^6.1.0"
   },

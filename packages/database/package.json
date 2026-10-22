@@ -13,6 +13,10 @@
     "./job-repository": {
       "types": "./dist/repositories/job/job.repository.d.ts",
       "default": "./dist/repositories/job/job.repository.js"
+    },
+    "./membership-repository": {
+      "types": "./dist/repositories/membership/membership.repository.d.ts",
+      "default": "./dist/repositories/membership/membership.repository.js"
     }
   },
   "scripts": {
