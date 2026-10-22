@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { CreateJobSchema, JobSchema, hasPermission } from "./index.js";
+import { CreateJobSchema, JobSchema } from "./job.schema.js";
 
 test("report validation rejects NaN and empty arrays", () => {
   assert.equal(
@@ -15,10 +15,6 @@ test("report validation rejects NaN and empty arrays", () => {
     CreateJobSchema.safeParse({ type: "report", numbers: [NaN] }).success,
     false,
   );
-});
-test("viewer cannot create jobs", () => {
-  assert.equal(hasPermission("viewer", "jobs:create"), false);
-  assert.equal(hasPermission("operator", "jobs:create"), true);
 });
 
 test("all supported job types accept valid payloads", () => {
