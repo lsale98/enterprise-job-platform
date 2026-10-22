@@ -1,8 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { createLocalJWKSet, exportJWK, generateKeyPair, SignJWT } from "jose";
-
-import { createAccessTokenVerifier } from "./index.js";
+import { createAccessTokenVerifier } from "./access-token.verifier.js";
 
 const issuer = "http://localhost:8080/realms/enterprise-job-platform";
 

@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { createAccessTokenVerifier } from "./index.js";
+import { createAccessTokenVerifier } from "../authentication/access-token.verifier.js";
 
 const issuer = process.env.AUTH_KEYCLOAK_ISSUER;
 const audience = process.env.AUTH_API_AUDIENCE;
