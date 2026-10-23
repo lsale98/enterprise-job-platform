@@ -1,11 +1,14 @@
 # ADR-001 — Modular monorepo and runtime boundaries
 
-| Field              | Value                                                                                   |
-| ------------------ | --------------------------------------------------------------------------------------- |
-| **Status**         | Accepted — laboratory decision, production deployment requires appropriate verification |
-| **Date**           | 2026-10-19                                                                              |
-| **Decision Owner** | Aleksandar Lakatos                                                                      |
-| **ADR ID**         | ADR-001                                                                                 |
+| Field                 | Value                                                                                                               |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Status                | Accepted — laboratory decision, production deployment requires appropriate verification                             |
+| Date                  | 2026-10-19                                                                                                          |
+| Epic                  | E1 — Project Foundation                                                                                             |
+| User story            | E1-S1 — Monorepo Foundation                                                                                         |
+| Scope                 | Repository structure, pnpm workspaces, Turborepo, shared packages, root scripts, and independent runtime boundaries |
+| Related ADRs          | ADR-002 — Shared TypeScript Contracts and Runtime Validation                                                        |
+| Verification evidence | -                                                                                                                   |
 
 ## 1. Context and problem
 

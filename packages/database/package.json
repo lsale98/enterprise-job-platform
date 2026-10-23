@@ -22,9 +22,9 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "migrate": "node dist/scripts/migrate.js",
-    "seed": "node dist/scripts/seed.js",
-    "test:integration": "node --test dist/repositories/job/job.repository.integration.test.js"
+    "migrate": "node --env-file=../../.env dist/scripts/migrate.js",
+    "seed": "node --env-file=../../.env dist/scripts/seed.js",
+    "test:integration": "node --env-file=../../.env --test dist/repositories/job/job.repository.integration.test.js"
   },
   "dependencies": {
     "pg": "^8.16.0",

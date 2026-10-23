@@ -1,10 +1,13 @@
 import { createHash } from "node:crypto";
+import type { Pool } from "pg";
+
 import {
   CreateJobSchema,
   type JobInput,
   type JobStatus,
   type JobType,
 } from "@lab/contracts";
+
 import { transaction } from "../../connection/transaction.js";
 
 export interface PersistedJob {
@@ -54,6 +57,7 @@ function canonicalize(value: unknown): unknown {
 }
 
 export async function createJobIdempotently(
+  pool: Pool,
   params: CreateJobParams,
 ): Promise<CreateJobOutcome> {
   const { tenantId, createdBy, idempotencyKey } = params;
@@ -67,7 +71,7 @@ export async function createJobIdempotently(
 
   const requestHash = createHash("sha256").update(json).digest("hex");
 
-  return transaction(async (client) => {
+  return transaction(pool, async (client) => {
     const inserted = await client.query<PersistedJob>(
       `INSERT INTO jobs (
         tenant_id,

@@ -1,6 +1,15 @@
 import { readdir, readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
-import { pool, transaction } from "../index.js";
+
+import { createDatabasePool, transaction } from "../index.js";
+
+const connectionString = process.env.DATABASE_URL;
+
+if (!connectionString) {
+  throw new Error("DATABASE_URL must be set for migrations");
+}
+
+const pool = createDatabasePool({ connectionString });
 
 const dir = fileURLToPath(new URL("../../migrations/", import.meta.url));
 
@@ -31,7 +40,7 @@ try {
       "utf8",
     );
 
-    await transaction(async (client) => {
+    await transaction(pool, async (client) => {
       await client.query("SELECT pg_advisory_xact_lock(487273)");
 
       const check = await client.query(
