@@ -299,6 +299,31 @@ This file is intentionally structured so it can be converted into GitHub Issues,
 
 ## Epic 9 — Security and Quality Assurance
 
+### Story E9-S0 — As an engineer, I want automated local quality checks before committing code.
+
+**Acceptance criteria**
+
+- Husky installs and manages Git hooks through the pnpm lifecycle.
+- Pre-commit checks operate only on staged files.
+- Prettier enforces consistent formatting across supported source and configuration files.
+- ESLint validates JavaScript and TypeScript code using a shared project configuration.
+- Formatting or lint failures prevent commits.
+- Generated files, dependencies, build outputs, private environment files, and local caches are excluded from formatting and linting.
+- Existing build, typecheck, unit, integration, and regression workflows remain functional.
+- Local Git hooks do not depend on PostgreSQL or other external services.
+- Verification evidence documents successful and failing hook scenarios.
+
+**Tasks**
+
+- install and configure Husky
+- install and configure lint-staged
+- configure Prettier and ignore rules
+- configure ESLint for the existing TypeScript workspace
+- add root lint and format-check scripts
+- implement and verify the pre-commit hook
+- verify regression compatibility
+- document developer workflow and validation evidence
+
 ### Story E9-S1 — As a security reviewer, I want automated auth and tenant-isolation tests.
 
 **Acceptance criteria**
