@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import type { Pool } from "pg";
+import type { Pool, PoolClient } from "pg";
 
 import {
   CreateJobSchema,
@@ -9,6 +9,11 @@ import {
 } from "@lab/contracts";
 
 import { transaction } from "../../connection/transaction.js";
+
+import {
+  insertAuditEvent,
+  type CreateAuditEventParams,
+} from "../audit/audit.repository.js";
 
 export interface PersistedJob {
   id: string;
@@ -25,6 +30,13 @@ export interface CreateJobParams {
   createdBy: string;
   idempotencyKey: string;
   input: JobInput;
+}
+
+export interface JobRepositoryDependencies {
+  insertAuditEvent: (
+    client: PoolClient,
+    params: CreateAuditEventParams,
+  ) => Promise<void>;
 }
 
 export type CreateJobOutcome =
@@ -59,6 +71,9 @@ function canonicalize(value: unknown): unknown {
 export async function createJobIdempotently(
   pool: Pool,
   params: CreateJobParams,
+  dependencies: JobRepositoryDependencies = {
+    insertAuditEvent,
+  },
 ): Promise<CreateJobOutcome> {
   const { tenantId, createdBy, idempotencyKey } = params;
 
@@ -98,6 +113,13 @@ export async function createJobIdempotently(
     const created = inserted.rows[0];
 
     if (created) {
+      await dependencies.insertAuditEvent(client, {
+        tenantId: created.tenantId,
+        actor: created.createdBy,
+        action: "job.created",
+        resourceId: created.id,
+      });
+
       return { kind: "created", job: created };
     }
 
