@@ -156,6 +156,27 @@ This file is intentionally structured so it can be converted into GitHub Issues,
 - connect idempotency logic
 - write integration tests
 
+### Story E5-S1A — As an operator, I want job creation to produce a durable audit record.
+
+**Acceptance criteria**
+
+- creating a new job creates a corresponding `job.created` audit event
+- job creation and audit event insertion occur within the same PostgreSQL transaction
+- failure to persist the audit event rolls back the entire job creation transaction
+- idempotent replay does not create an additional `job.created` event
+- audit events identify the tenant, authenticated actor, resource, action, and creation time
+- PostgreSQL integration tests verify atomicity, rollback, and idempotent audit behavior
+
+**Tasks**
+
+- document the transactional audit decision in ADR-008
+- implement audit event persistence in `@lab/database`
+- integrate audit insertion into the existing job creation transaction
+- ensure idempotent replays do not duplicate audit events
+- add PostgreSQL integration tests for successful creation, replay, and rollback
+- run existing database, authentication, and API regression tests
+- record verification evidence in `docs/evidence/database/e5-s1a-validation.md`
+
 ### Story E5-S2 — As a user, I want to list and inspect jobs I am allowed to see.
 
 **Acceptance criteria**
