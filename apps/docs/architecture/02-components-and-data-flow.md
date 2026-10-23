@@ -5,15 +5,15 @@
 
 ## Runtime components
 
-| Component | Primary responsibility | Does not own |
-| --- | --- | --- |
-| `apps/web` | Authenticated Next.js interface, server-side BFF calls, presentation | Final authorization or direct SQL |
-| `apps/api` | HTTP contracts, validation, identity verification, current authorization, job commands and queries | Long-running job execution |
-| `apps/worker` | Claim jobs, execute supported work, heartbeat, retries and terminal state updates | Login and interactive requests |
-| `apps/dispatcher` | Claim pending notifications, sign and deliver webhooks, record attempts | Original business transaction |
-| PostgreSQL | Durable jobs, memberships, idempotency, audit, outbox, tenant documents | Interactive UI rendering |
-| Keycloak / OIDC provider | User authentication and optional MFA policy | Per-job business authorization |
-| Local model runtime | Generate answers from retrieved permitted documents | Access-control decisions |
+| Component                | Primary responsibility                                                                             | Does not own                      |
+| ------------------------ | -------------------------------------------------------------------------------------------------- | --------------------------------- |
+| `apps/web`               | Authenticated Next.js interface, server-side BFF calls, presentation                               | Final authorization or direct SQL |
+| `apps/api`               | HTTP contracts, validation, identity verification, current authorization, job commands and queries | Long-running job execution        |
+| `apps/worker`            | Claim jobs, execute supported work, heartbeat, retries and terminal state updates                  | Login and interactive requests    |
+| `apps/dispatcher`        | Claim pending notifications, sign and deliver webhooks, record attempts                            | Original business transaction     |
+| PostgreSQL               | Durable jobs, memberships, idempotency, audit, outbox, tenant documents                            | Interactive UI rendering          |
+| Keycloak / OIDC provider | User authentication and optional MFA policy                                                        | Per-job business authorization    |
+| Local model runtime      | Generate answers from retrieved permitted documents                                                | Access-control decisions          |
 
 ## Shared code packages
 

@@ -15,16 +15,16 @@ The operating team must be able to answer:
 
 ## Core telemetry
 
-| Layer | Signals | Example reason to alert |
-| --- | --- | --- |
-| Web | Page errors, user-visible failure rate, server render timings | Operators cannot complete key workflow |
-| API | HTTP response counts by class, p50/p95/p99 latency, saturation | Error rate grows or latency violates SLO |
-| PostgreSQL | Active connections, slow queries, lock waits, storage, replication/backup health | Slow or unavailable persistence |
-| Worker | Queue depth, oldest waiting job, lease expiration, attempts, job duration | Backlog grows or jobs stop completing |
-| Dispatcher | Pending/dead outbox messages, delivery age, retry volume | Notifications cannot be delivered |
-| Auth | Login failures, token validation errors, forbidden access trends | Identity outage or abuse spike |
-| AI | Retrieval timing, inference duration, evidence abstention rate, model version | AI quality or latency degrades |
-| Runtime | CPU%, RSS/heap, GC pauses, event loop delay, restarts | Resource exhaustion / memory leak |
+| Layer      | Signals                                                                          | Example reason to alert                  |
+| ---------- | -------------------------------------------------------------------------------- | ---------------------------------------- |
+| Web        | Page errors, user-visible failure rate, server render timings                    | Operators cannot complete key workflow   |
+| API        | HTTP response counts by class, p50/p95/p99 latency, saturation                   | Error rate grows or latency violates SLO |
+| PostgreSQL | Active connections, slow queries, lock waits, storage, replication/backup health | Slow or unavailable persistence          |
+| Worker     | Queue depth, oldest waiting job, lease expiration, attempts, job duration        | Backlog grows or jobs stop completing    |
+| Dispatcher | Pending/dead outbox messages, delivery age, retry volume                         | Notifications cannot be delivered        |
+| Auth       | Login failures, token validation errors, forbidden access trends                 | Identity outage or abuse spike           |
+| AI         | Retrieval timing, inference duration, evidence abstention rate, model version    | AI quality or latency degrades           |
+| Runtime    | CPU%, RSS/heap, GC pauses, event loop delay, restarts                            | Resource exhaustion / memory leak        |
 
 ## Structured logs
 
@@ -43,13 +43,13 @@ Never log raw authorization tokens, passwords, session cookies, unredacted sensi
 
 ## Example SLO proposal (not yet adopted)
 
-| Service journey | Candidate SLI | Candidate objective |
-| --- | --- | --- |
-| Job submission | Valid authenticated requests that receive expected response | Agree after staging baseline |
-| Job completion | Eligible jobs completed within job-type deadline | Define per job type |
-| Job queue | Age of oldest runnable queued job | Define from business urgency |
-| Dashboard | Successful authorized job list requests | Agree after load baseline |
-| Notification delivery | Messages delivered within defined retry window | Negotiate per receiver contract |
+| Service journey       | Candidate SLI                                               | Candidate objective             |
+| --------------------- | ----------------------------------------------------------- | ------------------------------- |
+| Job submission        | Valid authenticated requests that receive expected response | Agree after staging baseline    |
+| Job completion        | Eligible jobs completed within job-type deadline            | Define per job type             |
+| Job queue             | Age of oldest runnable queued job                           | Define from business urgency    |
+| Dashboard             | Successful authorized job list requests                     | Agree after load baseline       |
+| Notification delivery | Messages delivered within defined retry window              | Negotiate per receiver contract |
 
 **No numerical targets are declared as achieved here.** Define thresholds with the Product Owner and SRE based on business requirements and representative measurements.
 

@@ -5,9 +5,9 @@
 
 ## Distinct concepts
 
-- **Authentication:** Establishes *who* the user is through OIDC.
-- **Authorization:** Establishes *what* the user may do.
-- **Tenant isolation:** Establishes *whose resources* the user may operate on.
+- **Authentication:** Establishes _who_ the user is through OIDC.
+- **Authorization:** Establishes _what_ the user may do.
+- **Tenant isolation:** Establishes _whose resources_ the user may operate on.
 
 Successful login does **not** imply membership in every tenant.
 
@@ -19,13 +19,13 @@ The web application uses an OIDC provider (Keycloak in the development environme
 
 ## Initial roles and permissions
 
-| Operation | Viewer | Operator | Tenant Admin |
-| --- | :---: | :---: | :---: |
-| View own-tenant jobs | Yes | Yes | Yes |
-| Create jobs | No | Yes | Yes |
-| Cancel eligible jobs | No | Yes | Yes |
-| Manage tenant membership | No | No | Yes |
-| View audit trail | No | No | Yes |
+| Operation                | Viewer | Operator | Tenant Admin |
+| ------------------------ | :----: | :------: | :----------: |
+| View own-tenant jobs     |  Yes   |   Yes    |     Yes      |
+| Create jobs              |   No   |   Yes    |     Yes      |
+| Cancel eligible jobs     |   No   |   Yes    |     Yes      |
+| Manage tenant membership |   No   |    No    |     Yes      |
+| View audit trail         |   No   |    No    |     Yes      |
 
 The initial design uses the roles `viewer`, `operator`, `admin` and permission keys such as `jobs:read`, `jobs:create`, `jobs:cancel`, `members:manage`, `audit:read`. A global platform administrator is a **separate future design** and must not be assumed equivalent to tenant `admin`.
 
@@ -55,14 +55,14 @@ Examples:
 
 ## Required threat scenarios
 
-| Scenario | Expected system behavior |
-| --- | --- |
-| Missing or invalid authentication | `401 Unauthorized` |
-| Authenticated user lacks permission | `403 Forbidden` |
-| Authenticated tenant A user requests tenant B data | Denied; no data disclosure |
-| Role revoked during an active session | Next authorized action uses the updated membership |
-| Manipulated tenant ID | Server checks membership and resource ownership |
-| Expired or tampered internal assertion | Rejected by API |
-| Unauthorized AI document access | No cross-tenant document retrieval |
+| Scenario                                           | Expected system behavior                           |
+| -------------------------------------------------- | -------------------------------------------------- |
+| Missing or invalid authentication                  | `401 Unauthorized`                                 |
+| Authenticated user lacks permission                | `403 Forbidden`                                    |
+| Authenticated tenant A user requests tenant B data | Denied; no data disclosure                         |
+| Role revoked during an active session              | Next authorized action uses the updated membership |
+| Manipulated tenant ID                              | Server checks membership and resource ownership    |
+| Expired or tampered internal assertion             | Rejected by API                                    |
+| Unauthorized AI document access                    | No cross-tenant document retrieval                 |
 
 Tests must assert these properties on actual API/database paths, not only in client components. See [Security verification](../operations/04-security-verification.md).

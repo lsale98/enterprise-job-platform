@@ -7,16 +7,16 @@
 
 PostgreSQL is the system of record for job processing and tenancy. Important logical entities are:
 
-| Entity | Main purpose | Tenant-owned? |
-| --- | --- | --- |
-| `tenants` | Organization identity | N/A |
-| `identities` | Mapping from external identity subject to local record | Shared identity; linked through membership |
-| `memberships` | Subject-to-tenant role assignment | Yes |
-| `jobs` | Job input, state, attempts, scheduling and result | Yes |
-| `imported_records` | Idempotently imported business records | Yes |
-| `notification_outbox` | Durable webhook delivery record | Yes |
-| `audit_events` | Traceability of sensitive/business actions | Yes |
-| `knowledge_documents` | Documents/embeddings used in AI retrieval | Yes |
+| Entity                | Main purpose                                           | Tenant-owned?                              |
+| --------------------- | ------------------------------------------------------ | ------------------------------------------ |
+| `tenants`             | Organization identity                                  | N/A                                        |
+| `identities`          | Mapping from external identity subject to local record | Shared identity; linked through membership |
+| `memberships`         | Subject-to-tenant role assignment                      | Yes                                        |
+| `jobs`                | Job input, state, attempts, scheduling and result      | Yes                                        |
+| `imported_records`    | Idempotently imported business records                 | Yes                                        |
+| `notification_outbox` | Durable webhook delivery record                        | Yes                                        |
+| `audit_events`        | Traceability of sensitive/business actions             | Yes                                        |
+| `knowledge_documents` | Documents/embeddings used in AI retrieval              | Yes                                        |
 
 ## Consistency strategy
 
@@ -42,14 +42,14 @@ The AI assistant is an optional operational tool. A user asks a question; the se
 
 ## Evaluation plan
 
-| Evaluation dimension | Example check |
-| --- | --- |
-| Retrieval relevance | Known answer appears in top retrieved sources |
-| Tenant isolation | Identical query cannot leak neighboring tenant documents |
-| Citation correctness | Every cited source was retrieved and belongs to tenant |
-| Abstention | Unsupported questions result in an insufficient-evidence response |
-| Prompt injection | Embedded commands do not override trusted application instructions |
-| Performance | AI request latency and resource use recorded by model version |
+| Evaluation dimension | Example check                                                      |
+| -------------------- | ------------------------------------------------------------------ |
+| Retrieval relevance  | Known answer appears in top retrieved sources                      |
+| Tenant isolation     | Identical query cannot leak neighboring tenant documents           |
+| Citation correctness | Every cited source was retrieved and belongs to tenant             |
+| Abstention           | Unsupported questions result in an insufficient-evidence response  |
+| Prompt injection     | Embedded commands do not override trusted application instructions |
+| Performance          | AI request latency and resource use recorded by model version      |
 
 ## AI trade-offs
 

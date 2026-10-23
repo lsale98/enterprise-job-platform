@@ -10,15 +10,15 @@ The Enterprise Job Processing Platform is an internal, multi-tenant application 
 
 ## Actors and external systems
 
-| Actor / system | Responsibility | Trust boundary |
-| --- | --- | --- |
-| Viewer | Inspect jobs within an authorized organization | Authenticated user, read-only |
-| Operator | Submit and cancel supported jobs | Authenticated user with scoped permissions |
-| Tenant administrator | Manage membership, roles and audit access | Administrator for their own tenant only |
-| Identity provider | Authenticate users, provide OIDC identity and MFA | External security authority for identity, **not** application permissions |
-| Webhook receiver | Accept outbound notifications | External service; delivery may be repeated |
-| AI model runtime | Generate answers from supplied context | Untrusted model output; never authorizes requests |
-| Engineering / operations | Deploy, monitor and recover the system | Privileged operational access, separately controlled |
+| Actor / system           | Responsibility                                    | Trust boundary                                                            |
+| ------------------------ | ------------------------------------------------- | ------------------------------------------------------------------------- |
+| Viewer                   | Inspect jobs within an authorized organization    | Authenticated user, read-only                                             |
+| Operator                 | Submit and cancel supported jobs                  | Authenticated user with scoped permissions                                |
+| Tenant administrator     | Manage membership, roles and audit access         | Administrator for their own tenant only                                   |
+| Identity provider        | Authenticate users, provide OIDC identity and MFA | External security authority for identity, **not** application permissions |
+| Webhook receiver         | Accept outbound notifications                     | External service; delivery may be repeated                                |
+| AI model runtime         | Generate answers from supplied context            | Untrusted model output; never authorizes requests                         |
+| Engineering / operations | Deploy, monitor and recover the system            | Privileged operational access, separately controlled                      |
 
 ## Context diagram
 

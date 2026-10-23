@@ -9,13 +9,13 @@ The platform combines latency-sensitive HTTP requests with background work, data
 
 ## Workload profiles
 
-| Profile | Primary path | Core metrics |
-| --- | --- | --- |
-| Read | Authorized job listing / job detail | RPS, p95/p99, DB query time |
-| Write | Job creation with validation + idempotency | Throughput, p95/p99, conflict rate |
-| Processing | Worker executes `report` / `import` workloads | Jobs/min, CPU/RSS, retry rate |
-| Delivery | Outbox dispatcher with slow/failing receiver | Pending age, retry count, delivery throughput |
-| AI | Retrieval + embedding/model inference | p95, quality, model CPU/GPU/RAM |
+| Profile    | Primary path                                  | Core metrics                                  |
+| ---------- | --------------------------------------------- | --------------------------------------------- |
+| Read       | Authorized job listing / job detail           | RPS, p95/p99, DB query time                   |
+| Write      | Job creation with validation + idempotency    | Throughput, p95/p99, conflict rate            |
+| Processing | Worker executes `report` / `import` workloads | Jobs/min, CPU/RSS, retry rate                 |
+| Delivery   | Outbox dispatcher with slow/failing receiver  | Pending age, retry count, delivery throughput |
+| AI         | Retrieval + embedding/model inference         | p95, quality, model CPU/GPU/RAM               |
 
 ## Test types
 
