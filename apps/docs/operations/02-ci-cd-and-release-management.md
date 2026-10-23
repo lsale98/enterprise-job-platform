@@ -12,16 +12,16 @@
 
 ## Pull request checks
 
-| Stage | Required check | Failure policy |
-| --- | --- | --- |
-| Dependencies | Frozen lockfile install | Block merge |
-| Code style | Lint / formatting checks | Block merge |
-| Type safety | TypeScript checks across relevant workspaces | Block merge |
-| Unit | Engine, contracts and policy behavior | Block merge |
-| Integration | API and PostgreSQL behavior; isolated test dependencies | Block merge when configured |
-| Security | Audit/scanning and tenant/auth negative tests | Block merge on agreed severity/policy |
-| Build | Web/API/worker/dispatcher build | Block merge |
-| E2E | Critical browser flows in authenticated staging/test environment | Required before release |
+| Stage        | Required check                                                   | Failure policy                        |
+| ------------ | ---------------------------------------------------------------- | ------------------------------------- |
+| Dependencies | Frozen lockfile install                                          | Block merge                           |
+| Code style   | Lint / formatting checks                                         | Block merge                           |
+| Type safety  | TypeScript checks across relevant workspaces                     | Block merge                           |
+| Unit         | Engine, contracts and policy behavior                            | Block merge                           |
+| Integration  | API and PostgreSQL behavior; isolated test dependencies          | Block merge when configured           |
+| Security     | Audit/scanning and tenant/auth negative tests                    | Block merge on agreed severity/policy |
+| Build        | Web/API/worker/dispatcher build                                  | Block merge                           |
+| E2E          | Critical browser flows in authenticated staging/test environment | Required before release               |
 
 Performance soak tests may run on a scheduled or dedicated pipeline because they are long-running. Critical load regression thresholds should be agreed before enforcing them as gates.
 

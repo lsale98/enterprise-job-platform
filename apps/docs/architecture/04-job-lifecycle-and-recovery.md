@@ -5,11 +5,11 @@
 
 ## Supported job types
 
-| Type | Input | Intended result |
-| --- | --- | --- |
-| `report` | Bounded array of numbers | Summary statistics |
-| `import` | Bounded records with external IDs | Idempotent import/update |
-| `notification` | Subject and message | Durable outbox message for delivery |
+| Type           | Input                             | Intended result                     |
+| -------------- | --------------------------------- | ----------------------------------- |
+| `report`       | Bounded array of numbers          | Summary statistics                  |
+| `import`       | Bounded records with external IDs | Idempotent import/update            |
+| `notification` | Subject and message               | Durable outbox message for delivery |
 
 ## Job states
 
@@ -50,15 +50,15 @@ This simplifies the initial architecture by reusing PostgreSQL, but the database
 
 ## Failure cases to test
 
-| Failure | Expected outcome |
-| --- | --- |
-| Worker exits immediately after claiming a job | Lease expires and work becomes reclaimable |
-| Worker loses lease before finishing | Old worker cannot commit completion |
-| Job fails twice then succeeds | Attempts are recorded and final state is completed |
-| Job exceeds allowed attempts | Final state becomes failed |
-| Two workers claim concurrently | A single claim owner per attempt |
-| Duplicate import record | Defined upsert/idempotency behavior |
-| Duplicate notification attempt | Outbox identity prevents duplicate logical outbox records |
+| Failure                                       | Expected outcome                                          |
+| --------------------------------------------- | --------------------------------------------------------- |
+| Worker exits immediately after claiming a job | Lease expires and work becomes reclaimable                |
+| Worker loses lease before finishing           | Old worker cannot commit completion                       |
+| Job fails twice then succeeds                 | Attempts are recorded and final state is completed        |
+| Job exceeds allowed attempts                  | Final state becomes failed                                |
+| Two workers claim concurrently                | A single claim owner per attempt                          |
+| Duplicate import record                       | Defined upsert/idempotency behavior                       |
+| Duplicate notification attempt                | Outbox identity prevents duplicate logical outbox records |
 
 ## Outbound side effects
 

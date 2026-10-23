@@ -324,6 +324,28 @@ This file is intentionally structured so it can be converted into GitHub Issues,
 - verify regression compatibility
 - document developer workflow and validation evidence
 
+### Story E9-S0A — As an engineer, I want a consistent formatting baseline across the repository.
+
+**Acceptance criteria**
+
+- All supported tracked source, configuration, and documentation files comply with the established Prettier configuration.
+- `pnpm format:check` passes for the entire repository.
+- Generated files, dependencies, local caches, environment files, and managed lockfiles remain excluded.
+- Formatting changes do not modify application behavior or business logic.
+- Git line-ending rules remain consistent with `.gitattributes`.
+- ESLint, build, typecheck, unit tests, and PostgreSQL integration tests continue to pass.
+- Formatting-only changes are separated from functional changes.
+- Verification evidence records actual results and known limitations.
+
+**Tasks**
+
+- review existing Prettier configuration and ignore rules
+- establish the repository-wide formatting baseline
+- inspect the formatting diff for unintended changes
+- verify `pnpm format:check`
+- verify `pnpm lint` and `pnpm regression`
+- document results in `docs/evidence/tooling/e9-s0a-validation.md`
+
 ### Story E9-S1 — As a security reviewer, I want automated auth and tenant-isolation tests.
 
 **Acceptance criteria**
