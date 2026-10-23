@@ -151,7 +151,7 @@ const otherTenantId = "22222222-2222-4222-8222-222222222222";
 
 test("rejects access to another tenant", async () => {
   const authorize = createAuthorizer({
-    async findMembership(subject, requestedTenantId) {
+    async findMembership(subject) {
       // Repository returns a membership for the wrong tenant.
       return {
         subject,

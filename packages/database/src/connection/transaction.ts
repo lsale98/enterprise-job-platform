@@ -21,6 +21,7 @@ export async function transaction<T>(
       throw new AggregateError(
         [error, rollbackError],
         "Transaction failed and rollback failed",
+        { cause: rollbackError },
       );
     }
 
