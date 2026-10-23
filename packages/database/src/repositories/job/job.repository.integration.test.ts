@@ -1,11 +1,21 @@
 import { after, test } from "node:test";
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
+
 import {
   createJobIdempotently,
   IdempotencyConflictError,
 } from "./job.repository.js";
-import { pool } from "../../connection/pool.js";
+
+import { createDatabasePool } from "../../connection/pool.js";
+
+const connectionString = process.env.DATABASE_URL;
+
+if (!connectionString) {
+  throw new Error("DATABASE_URL must be set for integration tests");
+}
+
+const pool = createDatabasePool({ connectionString });
 
 const tenantA = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
 const tenantB = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
@@ -41,7 +51,7 @@ after(async () => {
 });
 
 test("creates a new job", async () => {
-  const result = await createJobIdempotently({
+  const result = await createJobIdempotently(pool, {
     tenantId: tenantA,
     createdBy: alice,
     idempotencyKey: newKey(),
@@ -61,8 +71,8 @@ test("same key and payload return the existing job", async () => {
     input: report,
   };
 
-  const first = await createJobIdempotently(params);
-  const second = await createJobIdempotently(params);
+  const first = await createJobIdempotently(pool, params);
+  const second = await createJobIdempotently(pool, params);
 
   assert.equal(first.kind, "created");
   assert.equal(second.kind, "replayed");
@@ -72,7 +82,7 @@ test("same key and payload return the existing job", async () => {
 test("same key with different payload is rejected", async () => {
   const idempotencyKey = newKey();
 
-  await createJobIdempotently({
+  await createJobIdempotently(pool, {
     tenantId: tenantA,
     createdBy: alice,
     idempotencyKey,
@@ -81,7 +91,7 @@ test("same key with different payload is rejected", async () => {
 
   await assert.rejects(
     () =>
-      createJobIdempotently({
+      createJobIdempotently(pool, {
         tenantId: tenantA,
         createdBy: alice,
         idempotencyKey,
@@ -97,7 +107,7 @@ test("same key with different payload is rejected", async () => {
 test("same key with different actor is rejected", async () => {
   const idempotencyKey = newKey();
 
-  await createJobIdempotently({
+  await createJobIdempotently(pool, {
     tenantId: tenantA,
     createdBy: alice,
     idempotencyKey,
@@ -106,7 +116,7 @@ test("same key with different actor is rejected", async () => {
 
   await assert.rejects(
     () =>
-      createJobIdempotently({
+      createJobIdempotently(pool, {
         tenantId: tenantA,
         createdBy: bob,
         idempotencyKey,
@@ -119,14 +129,14 @@ test("same key with different actor is rejected", async () => {
 test("the same key can be used by different tenants", async () => {
   const idempotencyKey = newKey();
 
-  const a = await createJobIdempotently({
+  const a = await createJobIdempotently(pool, {
     tenantId: tenantA,
     createdBy: alice,
     idempotencyKey,
     input: report,
   });
 
-  const b = await createJobIdempotently({
+  const b = await createJobIdempotently(pool, {
     tenantId: tenantB,
     createdBy: carol,
     idempotencyKey,
@@ -143,7 +153,7 @@ test("concurrent identical requests create exactly one job", async () => {
 
   const results = await Promise.all(
     Array.from({ length: 8 }, () =>
-      createJobIdempotently({
+      createJobIdempotently(pool, {
         tenantId: tenantA,
         createdBy: alice,
         idempotencyKey,

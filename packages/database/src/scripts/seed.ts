@@ -1,18 +1,28 @@
-import { pool, transaction } from "../index.js";
+import { createDatabasePool, transaction } from "../index.js";
 
 // Local demo identities only.
-// Never execute seed scripts against customer databases.
+// Never execute seed scripts against staging or production databases.
 
-if (process.env.NODE_ENV === "production") {
-  throw new Error("Seed forbidden in production");
+if (
+  process.env.NODE_ENV === "production" ||
+  process.env.APP_ENV !== "development"
+) {
+  throw new Error("Seed is allowed only in development");
 }
 
-const companyA = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
+const connectionString = process.env.DATABASE_URL;
 
+if (!connectionString) {
+  throw new Error("DATABASE_URL must be set for seed");
+}
+
+const pool = createDatabasePool({ connectionString });
+
+const companyA = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
 const companyB = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
 
 try {
-  await transaction(async (db) => {
+  await transaction(pool, async (db) => {
     await db.query(
       `INSERT INTO tenants(id, name)
        VALUES ($1, 'Acme'), ($2, 'Contoso')

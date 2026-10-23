@@ -1,25 +1,24 @@
-import "dotenv/config";
 import pg from "pg";
-import type { QueryResultRow } from "pg";
+import type { Pool as PgPool } from "pg";
 
 const { Pool } = pg;
 
-const connectionString = process.env.DATABASE_URL;
-
-if (!connectionString) {
-  throw new Error("DATABASE_URL must be set");
+export interface DatabaseConfig {
+  connectionString: string;
+  maxConnections?: number;
+  connectionTimeoutMillis?: number;
+  idleTimeoutMillis?: number;
 }
 
-export const pool = new Pool({
-  connectionString,
-  max: 15,
-  connectionTimeoutMillis: 5000,
-  idleTimeoutMillis: 30000,
-});
+export function createDatabasePool(config: DatabaseConfig): PgPool {
+  if (!config.connectionString?.trim()) {
+    throw new Error("Database connection string is required");
+  }
 
-export async function query<T extends QueryResultRow = QueryResultRow>(
-  sql: string,
-  params: unknown[] = [],
-) {
-  return pool.query<T>(sql, params);
+  return new Pool({
+    connectionString: config.connectionString,
+    max: config.maxConnections ?? 15,
+    connectionTimeoutMillis: config.connectionTimeoutMillis ?? 5000,
+    idleTimeoutMillis: config.idleTimeoutMillis ?? 30000,
+  });
 }

@@ -1,9 +1,8 @@
 import assert from "node:assert/strict";
 import { after, test } from "node:test";
 
-import { pool } from "@lab/database";
 import { findMembership } from "@lab/database/membership-repository";
-
+import { createDatabasePool } from "@lab/database";
 import { createAuthorizer } from "./authorize.js";
 import { randomUUID } from "node:crypto";
 
@@ -14,7 +13,18 @@ const aliceSubject = "11111111-1111-4111-8111-111111111111";
 const bobSubject = "22222222-2222-4222-8222-222222222222";
 const carolSubject = "33333333-3333-4333-8333-333333333333";
 
-const authorize = createAuthorizer({ findMembership });
+const connectionString = process.env.DATABASE_URL;
+
+if (!connectionString) {
+  throw new Error("DATABASE_URL must be set for integration tests");
+}
+
+const pool = createDatabasePool({ connectionString });
+
+const authorize = createAuthorizer({
+  findMembership: (subject, tenantId) =>
+    findMembership(pool, subject, tenantId),
+});
 
 after(async () => {
   await pool.end();

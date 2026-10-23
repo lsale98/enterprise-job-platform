@@ -1,4 +1,4 @@
-import { query } from "../../connection/pool.js";
+import type { Pool } from "pg";
 
 export interface MembershipRecord {
   tenantId: string;
@@ -7,10 +7,11 @@ export interface MembershipRecord {
 }
 
 export async function findMembership(
+  pool: Pool,
   subject: string,
   tenantId: string,
 ): Promise<MembershipRecord | null> {
-  const result = await query<MembershipRecord>(
+  const result = await pool.query<MembershipRecord>(
     `
       SELECT
         tenant_id AS "tenantId",
