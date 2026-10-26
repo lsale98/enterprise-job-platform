@@ -2,7 +2,7 @@
 
 | Field                 | Value                                                                                                                              |
 | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| Status                | Proposed — pending review                                                                                                          |
+| Status                | Accepted for E5-S1A implementation                                                                                                 |
 | Date                  | 2026-10-23                                                                                                                         |
 | Epic                  | E5 — Job Management API                                                                                                            |
 | User story            | E5-S1A — Transactional Job Creation Audit Trail                                                                                    |
