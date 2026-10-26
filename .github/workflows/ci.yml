@@ -1,0 +1,87 @@
+name: CI Quality Gates
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - master
+  push:
+    branches:
+      - develop
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  quality-gates:
+    name: Quality Gates
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: pgvector/pgvector:pg17
+        env:
+          POSTGRES_USER: lab
+          POSTGRES_PASSWORD: ci_test_only
+          POSTGRES_DB: lab
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U lab -d lab"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 20
+
+    env:
+      DATABASE_URL: postgresql://lab:ci_test_only@localhost:5432/lab
+      APP_ENV: development
+      NODE_ENV: test
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.18.3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Prepare test environment file
+        run: |
+          printf 'DATABASE_URL=%s\n' "$DATABASE_URL" > .env
+          printf 'APP_ENV=development\n' >> .env
+          printf 'NODE_ENV=test\n' >> .env
+
+      - name: Check formatting
+        run: pnpm format:check
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Build
+        run: pnpm build
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Unit tests
+        run: pnpm test
+
+      - name: Apply database migrations
+        run: pnpm --filter @lab/database migrate
+
+      - name: Seed isolated test database
+        run: pnpm --filter @lab/database seed
+
+      - name: Integration tests
+        run: pnpm test:integration
