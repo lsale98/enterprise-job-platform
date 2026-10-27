@@ -5,6 +5,9 @@ import { IdempotencyConflictError } from "@lab/database/job-repository";
 
 import type { CreateJobRouteParams, JobsDependencies } from "./jobs.types.js";
 
+import { registerListJobsRoute } from "./queries/list-jobs.js";
+import { registerGetJobByIdRoute } from "./queries/get-job-by-id.js";
+
 export interface JobsRoutesOptions {
   dependencies: JobsDependencies;
 }
@@ -89,4 +92,6 @@ export const jobsRoutes: FastifyPluginAsync<JobsRoutesOptions> = async (
       }
     },
   );
+  registerListJobsRoute(app, dependencies);
+  registerGetJobByIdRoute(app, dependencies);
 };
