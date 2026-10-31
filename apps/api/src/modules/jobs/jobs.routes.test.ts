@@ -24,6 +24,23 @@ const validBody = {
   numbers: [1, 2, 3],
 };
 
+const secondTenantId = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
+const testJobId = "550e8400-e29b-41d4-a716-446655440000";
+
+const testJob = {
+  id: testJobId,
+  tenantId,
+  type: "report" as const,
+  status: "queued" as const,
+  attempts: 0,
+  maxAttempts: 3,
+  input: validBody,
+  result: null,
+  error: null,
+  createdAt: "2026-10-27T10:00:00.123456Z",
+  updatedAt: "2026-10-27T10:00:00.123456Z",
+};
+
 function createTestApp(overrides: Partial<JobsDependencies> = {}) {
   const calls: Array<{
     tenantId: string;
@@ -76,6 +93,17 @@ function createTestApp(overrides: Partial<JobsDependencies> = {}) {
           },
         };
       }),
+
+    listJobs:
+      overrides.listJobs ??
+      (async () => ({
+        jobs: [],
+        hasMore: false,
+      })),
+
+    getJobById: overrides.getJobById ?? (async () => null),
+
+    listJobAuditEvents: overrides.listJobAuditEvents ?? (async () => []),
   });
 
   return { app, calls };
@@ -239,4 +267,334 @@ test("returns 500 when job creation fails unexpectedly", async (t) => {
 
   // Internal error details must not be exposed to clients.
   assert.notEqual(response.json().message, "Database unavailable");
+});
+
+function listRequest(query = "") {
+  return {
+    method: "GET" as const,
+    url: `/v1/tenants/${tenantId}/jobs${query}`,
+    headers: {
+      authorization: "Bearer valid-token",
+    },
+  };
+}
+
+function detailsRequest(jobId = testJobId, requestedTenantId = tenantId) {
+  return {
+    method: "GET" as const,
+    url: `/v1/tenants/${requestedTenantId}/jobs/${jobId}`,
+    headers: {
+      authorization: "Bearer valid-token",
+    },
+  };
+}
+
+test("GET jobs returns an empty list", async (t) => {
+  const { app } = createTestApp();
+
+  t.after(async () => app.close());
+
+  const response = await app.inject(listRequest());
+
+  assert.equal(response.statusCode, 200);
+  assert.deepEqual(response.json(), {
+    jobs: [],
+    nextCursor: null,
+  });
+});
+
+test("GET jobs passes filters to the repository", async (t) => {
+  let receivedQuery: unknown;
+
+  const { app } = createTestApp({
+    listJobs: async (params) => {
+      receivedQuery = params.query;
+
+      assert.equal(params.tenantId, tenantId);
+
+      return {
+        jobs: [],
+        hasMore: false,
+      };
+    },
+  });
+
+  t.after(async () => app.close());
+
+  const response = await app.inject(
+    listRequest("?status=queued&type=report&limit=5"),
+  );
+
+  assert.equal(response.statusCode, 200);
+  assert.deepEqual(receivedQuery, {
+    status: "queued",
+    type: "report",
+    limit: 5,
+  });
+});
+
+test("GET jobs returns nextCursor when another page exists", async (t) => {
+  const { app } = createTestApp({
+    listJobs: async () => ({
+      jobs: [testJob],
+      hasMore: true,
+    }),
+  });
+
+  t.after(async () => app.close());
+
+  const response = await app.inject(listRequest("?limit=1"));
+
+  assert.equal(response.statusCode, 200);
+
+  const body = response.json();
+
+  assert.equal(body.jobs.length, 1);
+  assert.equal(typeof body.nextCursor, "string");
+  assert.ok(body.nextCursor.length > 0);
+});
+
+test("GET jobs accepts a cursor from the previous page", async (t) => {
+  let receivedCursor: unknown;
+
+  const { app } = createTestApp({
+    listJobs: async (params) => {
+      receivedCursor = params.cursor;
+
+      if (!params.cursor) {
+        return {
+          jobs: [testJob],
+          hasMore: true,
+        };
+      }
+
+      return {
+        jobs: [],
+        hasMore: false,
+      };
+    },
+  });
+
+  t.after(async () => app.close());
+
+  const first = await app.inject(listRequest("?limit=1"));
+
+  assert.equal(first.statusCode, 200);
+
+  const cursor = first.json().nextCursor;
+
+  const second = await app.inject(
+    listRequest(`?limit=1&cursor=${encodeURIComponent(cursor)}`),
+  );
+
+  assert.equal(second.statusCode, 200);
+  assert.ok(receivedCursor);
+  assert.equal(second.json().nextCursor, null);
+});
+
+test("GET jobs rejects invalid filters", async (t) => {
+  let called = false;
+
+  const { app } = createTestApp({
+    listJobs: async () => {
+      called = true;
+      return { jobs: [], hasMore: false };
+    },
+  });
+
+  t.after(async () => app.close());
+
+  const response = await app.inject(listRequest("?status=invalid&limit=999"));
+
+  assert.equal(response.statusCode, 400);
+  assert.equal(called, false);
+});
+
+test("GET jobs rejects an invalid cursor", async (t) => {
+  let called = false;
+
+  const { app } = createTestApp({
+    listJobs: async () => {
+      called = true;
+      return { jobs: [], hasMore: false };
+    },
+  });
+
+  t.after(async () => app.close());
+
+  const response = await app.inject(listRequest("?cursor=invalid!"));
+
+  assert.equal(response.statusCode, 400);
+  assert.equal(called, false);
+});
+
+test("GET jobs rejects requests without authentication", async (t) => {
+  const { app } = createTestApp();
+
+  t.after(async () => app.close());
+
+  const response = await app.inject({
+    method: "GET",
+    url: `/v1/tenants/${tenantId}/jobs`,
+  });
+
+  assert.equal(response.statusCode, 401);
+});
+
+test("GET jobs enforces jobs:read permission", async (t) => {
+  let called = false;
+
+  const { app } = createTestApp({
+    authorize: async () => ({
+      allowed: false,
+      reason: "FORBIDDEN",
+    }),
+    listJobs: async () => {
+      called = true;
+      return { jobs: [], hasMore: false };
+    },
+  });
+
+  t.after(async () => app.close());
+
+  const response = await app.inject(listRequest());
+
+  assert.equal(response.statusCode, 403);
+  assert.equal(called, false);
+});
+
+test("GET job details returns 404 for an unknown job", async (t) => {
+  const { app } = createTestApp({
+    getJobById: async () => null,
+  });
+
+  t.after(async () => app.close());
+
+  const response = await app.inject(detailsRequest());
+
+  assert.equal(response.statusCode, 404);
+});
+
+test("GET job details returns a job without audit history", async (t) => {
+  let auditCalled = false;
+
+  const { app } = createTestApp({
+    authorize: async (authenticatedSubject, requestedTenantId, permission) => {
+      if (permission === "audit:read") {
+        return {
+          allowed: false,
+          reason: "FORBIDDEN",
+        };
+      }
+
+      return {
+        allowed: true,
+        context: {
+          subject: authenticatedSubject,
+          tenantId: requestedTenantId,
+          role: "operator",
+        },
+      };
+    },
+
+    getJobById: async () => testJob,
+
+    listJobAuditEvents: async () => {
+      auditCalled = true;
+      return [];
+    },
+  });
+
+  t.after(async () => app.close());
+
+  const response = await app.inject(detailsRequest());
+
+  assert.equal(response.statusCode, 200);
+  assert.equal(response.json().job.id, testJobId);
+  assert.equal("auditEvents" in response.json(), false);
+  assert.equal(auditCalled, false);
+});
+
+test("GET job details includes audit history for authorized users", async (t) => {
+  const auditEvent = {
+    id: "1",
+    tenantId,
+    actor: subject,
+    action: "job.created",
+    resourceId: testJobId,
+    createdAt: "2026-10-27T10:00:00.123456Z",
+  };
+
+  const { app } = createTestApp({
+    authorize: async (authenticatedSubject, requestedTenantId) => ({
+      allowed: true,
+      context: {
+        subject: authenticatedSubject,
+        tenantId: requestedTenantId,
+        role: "admin",
+      },
+    }),
+
+    getJobById: async () => testJob,
+
+    listJobAuditEvents: async (params) => {
+      assert.equal(params.tenantId, tenantId);
+      assert.equal(params.jobId, testJobId);
+
+      return [auditEvent];
+    },
+  });
+
+  t.after(async () => app.close());
+
+  const response = await app.inject(detailsRequest());
+
+  assert.equal(response.statusCode, 200);
+  assert.equal(response.json().job.id, testJobId);
+  assert.deepEqual(response.json().auditEvents, [auditEvent]);
+});
+
+test("GET job details rejects unauthorized tenant access", async (t) => {
+  let called = false;
+
+  const { app } = createTestApp({
+    authorize: async () => ({
+      allowed: false,
+      reason: "FORBIDDEN",
+    }),
+    getJobById: async () => {
+      called = true;
+      return testJob;
+    },
+  });
+
+  t.after(async () => app.close());
+
+  const response = await app.inject(detailsRequest(testJobId, secondTenantId));
+
+  assert.equal(response.statusCode, 403);
+  assert.equal(called, false);
+});
+
+test("GET job details rejects invalid job IDs", async (t) => {
+  const { app } = createTestApp();
+
+  t.after(async () => app.close());
+
+  const response = await app.inject(detailsRequest("invalid-id"));
+
+  assert.equal(response.statusCode, 400);
+});
+
+test("GET job details rejects requests without authentication", async (t) => {
+  const { app } = createTestApp();
+
+  t.after(async () => app.close());
+
+  const response = await app.inject({
+    method: "GET",
+    url: `/v1/tenants/${tenantId}/jobs/${testJobId}`,
+  });
+
+  assert.equal(response.statusCode, 401);
 });

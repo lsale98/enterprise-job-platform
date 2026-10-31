@@ -14,9 +14,17 @@
       "types": "./dist/repositories/job/job.repository.d.ts",
       "default": "./dist/repositories/job/job.repository.js"
     },
+    "./job-query-repository": {
+      "types": "./dist/repositories/job/job-query.repository.d.ts",
+      "default": "./dist/repositories/job/job-query.repository.js"
+    },
     "./membership-repository": {
       "types": "./dist/repositories/membership/membership.repository.d.ts",
       "default": "./dist/repositories/membership/membership.repository.js"
+    },
+    "./audit-query-repository": {
+      "types": "./dist/repositories/audit/audit-query.repository.d.ts",
+      "default": "./dist/repositories/audit/audit-query.repository.js"
     }
   },
   "scripts": {
@@ -24,7 +32,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "migrate": "node --env-file=../../.env dist/scripts/migrate.js",
     "seed": "node --env-file=../../.env dist/scripts/seed.js",
-    "test:integration": "node --env-file=../../.env --test dist/repositories/job/job.repository.integration.test.js"
+    "test:integration": "node --env-file=../../.env --test \"dist/repositories/**/*.integration.test.js\""
   },
   "dependencies": {
     "pg": "^8.16.0",

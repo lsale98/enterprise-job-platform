@@ -39,6 +39,15 @@ function createTestApp() {
     createJob: async () => {
       throw new Error("Not implemented in this test");
     },
+
+    listJobs: async () => ({
+      jobs: [],
+      hasMore: false,
+    }),
+
+    getJobById: async () => null,
+
+    listJobAuditEvents: async () => [],
   });
 
   app.register(async (instance) => {

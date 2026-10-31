@@ -1,13 +1,28 @@
-import {
-  createAccessTokenVerifier,
-  createAuthorizer,
-  type AuthenticatedIdentity,
-} from "@lab/auth";
+import { createAccessTokenVerifier, createAuthorizer } from "@lab/auth";
+import type { AuthenticatedIdentity } from "@lab/auth";
 
-import { createDatabasePool, type DatabasePool } from "@lab/database";
-import { findMembership } from "@lab/database/membership-repository";
 import { createJobIdempotently } from "@lab/database/job-repository";
 import type { CreateJobParams } from "@lab/database/job-repository";
+
+import { getJobById, listJobs } from "@lab/database/job-query-repository";
+import type {
+  GetJobByIdParams,
+  JobDetails,
+  ListJobsParams,
+  ListJobsResult,
+} from "@lab/database/job-query-repository";
+
+import { listJobAuditEvents } from "@lab/database/audit-query-repository";
+
+import type {
+  JobAuditEvent,
+  ListJobAuditEventsParams,
+} from "@lab/database/audit-query-repository";
+
+import { createDatabasePool } from "@lab/database";
+import type { DatabasePool } from "@lab/database";
+
+import { findMembership } from "@lab/database/membership-repository";
 
 import type { AppConfig } from "../config/env.js";
 
@@ -20,6 +35,13 @@ export interface AppDependencies {
   createJob: (
     params: CreateJobParams,
   ) => ReturnType<typeof createJobIdempotently>;
+  listJobs: (params: ListJobsParams) => Promise<ListJobsResult>;
+
+  getJobById: (params: GetJobByIdParams) => Promise<JobDetails | null>;
+
+  listJobAuditEvents: (
+    params: ListJobAuditEventsParams,
+  ) => Promise<JobAuditEvent[]>;
 
   close(): Promise<void>;
 }
@@ -47,6 +69,12 @@ export function createDependencies(config: AppConfig): AppDependencies {
     authorize,
     verifyAccessToken,
     createJob,
+    listJobs: (params: ListJobsParams) => listJobs(pool, params),
+
+    getJobById: (params: GetJobByIdParams) => getJobById(pool, params),
+
+    listJobAuditEvents: (params: ListJobAuditEventsParams) =>
+      listJobAuditEvents(pool, params),
 
     async close() {
       await pool.end();

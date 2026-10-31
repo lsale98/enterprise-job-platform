@@ -10,7 +10,12 @@ export function buildApp(
   config: AppConfig,
   dependencies: Pick<
     AppDependencies,
-    "verifyAccessToken" | "authorize" | "createJob"
+    | "verifyAccessToken"
+    | "authorize"
+    | "createJob"
+    | "listJobs"
+    | "getJobById"
+    | "listJobAuditEvents"
   >,
 ) {
   const app = Fastify({
@@ -35,6 +40,9 @@ export function buildApp(
     dependencies: {
       authorize: dependencies.authorize,
       createJob: dependencies.createJob,
+      listJobs: dependencies.listJobs,
+      getJobById: dependencies.getJobById,
+      listJobAuditEvents: dependencies.listJobAuditEvents,
     },
   });
 
