@@ -1,11 +1,7 @@
 import type { Pool } from "pg";
 
-import type {
-  JobSummary,
-  JobSummaryRow,
-  ListJobsParams,
-  ListJobsResult,
-} from "./job-query.types.js";
+import type { ListJobsParams, ListJobsResult } from "./job-query.types.js";
+import type { JobSummary, JobSummaryRow } from "../job.types.js";
 
 export async function listJobs(
   pool: Pool,

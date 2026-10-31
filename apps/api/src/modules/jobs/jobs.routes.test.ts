@@ -104,6 +104,12 @@ function createTestApp(overrides: Partial<JobsDependencies> = {}) {
     getJobById: overrides.getJobById ?? (async () => null),
 
     listJobAuditEvents: overrides.listJobAuditEvents ?? (async () => []),
+
+    retryJob:
+      overrides.retryJob ?? (async () => ({ kind: "not_found" as const })),
+
+    cancelJob:
+      overrides.cancelJob ?? (async () => ({ kind: "not_found" as const })),
   });
 
   return { app, calls };
@@ -598,3 +604,190 @@ test("GET job details rejects requests without authentication", async (t) => {
 
   assert.equal(response.statusCode, 401);
 });
+
+const commandJobId = "550e8400-e29b-41d4-a716-446655440000";
+
+function commandRequest(
+  action: "retry" | "cancel",
+  options: {
+    token?: string;
+    jobId?: string;
+    tenant?: string;
+  } = {},
+) {
+  return {
+    method: "POST" as const,
+    url: `/v1/tenants/${options.tenant ?? tenantId}/jobs/${options.jobId ?? commandJobId}/${action}`,
+    headers: {
+      authorization: `Bearer ${options.token ?? "valid-token"}`,
+    },
+  };
+}
+
+function commandJob(status: "queued" | "cancelled") {
+  return {
+    id: commandJobId,
+    tenantId,
+    type: "report" as const,
+    status,
+    attempts: 1,
+    maxAttempts: 3,
+    createdAt: "2026-10-31T10:00:00.000000Z",
+    updatedAt: "2026-10-31T10:01:00.000000Z",
+  };
+}
+
+test("POST retry returns 200 for a successful transition", async (t) => {
+  let receivedParams: unknown;
+
+  const { app } = createTestApp({
+    retryJob: async (params) => {
+      receivedParams = params;
+
+      return {
+        kind: "updated",
+        job: commandJob("queued"),
+      };
+    },
+  });
+
+  t.after(async () => app.close());
+
+  const response = await app.inject(commandRequest("retry"));
+
+  assert.equal(response.statusCode, 200);
+  assert.equal(response.json().job.status, "queued");
+
+  assert.deepEqual(receivedParams, {
+    tenantId,
+    jobId: commandJobId,
+    actor: subject,
+  });
+});
+
+test("POST cancel returns 200 for a successful transition", async (t) => {
+  const { app } = createTestApp({
+    cancelJob: async () => ({
+      kind: "updated",
+      job: commandJob("cancelled"),
+    }),
+  });
+
+  t.after(async () => app.close());
+
+  const response = await app.inject(commandRequest("cancel"));
+
+  assert.equal(response.statusCode, 200);
+  assert.equal(response.json().job.status, "cancelled");
+});
+
+for (const action of ["retry", "cancel"] as const) {
+  test(`POST ${action} returns 400 for invalid job ID`, async (t) => {
+    const { app } = createTestApp();
+
+    t.after(async () => app.close());
+
+    const response = await app.inject(
+      commandRequest(action, { jobId: "invalid-id" }),
+    );
+
+    assert.equal(response.statusCode, 400);
+  });
+
+  test(`POST ${action} returns 401 without authentication`, async (t) => {
+    const { app } = createTestApp();
+
+    t.after(async () => app.close());
+
+    const response = await app.inject({
+      method: "POST",
+      url: `/v1/tenants/${tenantId}/jobs/${commandJobId}/${action}`,
+    });
+
+    assert.equal(response.statusCode, 401);
+  });
+
+  test(`POST ${action} returns 401 with invalid token`, async (t) => {
+    const { app } = createTestApp();
+
+    t.after(async () => app.close());
+
+    const response = await app.inject(
+      commandRequest(action, { token: "invalid-token" }),
+    );
+
+    assert.equal(response.statusCode, 401);
+  });
+
+  test(`POST ${action} returns 403 without permission`, async (t) => {
+    let called = false;
+
+    const overrides: Partial<JobsDependencies> = {
+      authorize: async () => ({
+        allowed: false,
+        reason: "FORBIDDEN",
+      }),
+      retryJob: async () => {
+        called = true;
+        return { kind: "not_found" };
+      },
+      cancelJob: async () => {
+        called = true;
+        return { kind: "not_found" };
+      },
+    };
+
+    const { app } = createTestApp(overrides);
+
+    t.after(async () => app.close());
+
+    const response = await app.inject(commandRequest(action));
+
+    assert.equal(response.statusCode, 403);
+    assert.equal(called, false);
+  });
+
+  test(`POST ${action} returns 404 for nonexistent jobs`, async (t) => {
+    const { app } = createTestApp({
+      retryJob: async () => ({ kind: "not_found" }),
+      cancelJob: async () => ({ kind: "not_found" }),
+    });
+
+    t.after(async () => app.close());
+
+    const response = await app.inject(commandRequest(action));
+
+    assert.equal(response.statusCode, 404);
+  });
+
+  test(`POST ${action} returns 409 for invalid transitions`, async (t) => {
+    const { app } = createTestApp({
+      retryJob: async () => ({ kind: "conflict" }),
+      cancelJob: async () => ({ kind: "conflict" }),
+    });
+
+    t.after(async () => app.close());
+
+    const response = await app.inject(commandRequest(action));
+
+    assert.equal(response.statusCode, 409);
+  });
+
+  test(`POST ${action} hides unexpected internal errors`, async (t) => {
+    const { app } = createTestApp({
+      retryJob: async () => {
+        throw new Error("Sensitive database details");
+      },
+      cancelJob: async () => {
+        throw new Error("Sensitive database details");
+      },
+    });
+
+    t.after(async () => app.close());
+
+    const response = await app.inject(commandRequest(action));
+
+    assert.equal(response.statusCode, 500);
+    assert.notEqual(response.json().message, "Sensitive database details");
+  });
+}

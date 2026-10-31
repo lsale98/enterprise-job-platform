@@ -16,6 +16,8 @@ export function buildApp(
     | "listJobs"
     | "getJobById"
     | "listJobAuditEvents"
+    | "cancelJob"
+    | "retryJob"
   >,
 ) {
   const app = Fastify({
@@ -43,6 +45,8 @@ export function buildApp(
       listJobs: dependencies.listJobs,
       getJobById: dependencies.getJobById,
       listJobAuditEvents: dependencies.listJobAuditEvents,
+      retryJob: dependencies.retryJob,
+      cancelJob: dependencies.cancelJob,
     },
   });
 

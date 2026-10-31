@@ -2,7 +2,11 @@ import { createAccessTokenVerifier, createAuthorizer } from "@lab/auth";
 import type { AuthenticatedIdentity } from "@lab/auth";
 
 import { createJobIdempotently } from "@lab/database/job-repository";
-import type { CreateJobParams } from "@lab/database/job-repository";
+import type {
+  CreateJobParams,
+  JobCommandParams,
+  JobCommandResult,
+} from "@lab/database/job-repository";
 
 import { getJobById, listJobs } from "@lab/database/job-query-repository";
 import type {
@@ -11,6 +15,8 @@ import type {
   ListJobsParams,
   ListJobsResult,
 } from "@lab/database/job-query-repository";
+
+import { retryJob, cancelJob } from "@lab/database/job-repository";
 
 import { listJobAuditEvents } from "@lab/database/audit-query-repository";
 
@@ -42,6 +48,9 @@ export interface AppDependencies {
   listJobAuditEvents: (
     params: ListJobAuditEventsParams,
   ) => Promise<JobAuditEvent[]>;
+
+  retryJob: (params: JobCommandParams) => Promise<JobCommandResult>;
+  cancelJob: (params: JobCommandParams) => Promise<JobCommandResult>;
 
   close(): Promise<void>;
 }
@@ -75,6 +84,9 @@ export function createDependencies(config: AppConfig): AppDependencies {
 
     listJobAuditEvents: (params: ListJobAuditEventsParams) =>
       listJobAuditEvents(pool, params),
+
+    retryJob: (params) => retryJob(pool, params),
+    cancelJob: (params) => cancelJob(pool, params),
 
     async close() {
       await pool.end();

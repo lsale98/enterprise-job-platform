@@ -1,23 +1,6 @@
-import type {
-  JobInput,
-  JobListCursor,
-  JobListQuery,
-  JobStatus,
-  JobType,
-} from "@lab/contracts";
+import type { JobInput, JobListCursor, JobListQuery } from "@lab/contracts";
 
-export interface JobSummary {
-  id: string;
-  tenantId: string;
-  type: JobType;
-  status: JobStatus;
-  attempts: number;
-  maxAttempts: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export type JobSummaryRow = JobSummary;
+import type { JobSummary } from "../job.types.js";
 
 export interface ListJobsParams {
   tenantId: string;
@@ -36,11 +19,7 @@ export interface JobDetails extends JobSummary {
   error: string | null;
 }
 
-export interface JobDetailsRow extends JobSummaryRow {
-  input: JobInput;
-  result: unknown | null;
-  error: string | null;
-}
+export type JobDetailsRow = JobDetails;
 
 export interface GetJobByIdParams {
   tenantId: string;
