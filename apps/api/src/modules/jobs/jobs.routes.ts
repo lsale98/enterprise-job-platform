@@ -8,6 +8,9 @@ import type { CreateJobRouteParams, JobsDependencies } from "./jobs.types.js";
 import { registerListJobsRoute } from "./queries/list-jobs.js";
 import { registerGetJobByIdRoute } from "./queries/get-job-by-id.js";
 
+import { registerRetryJobRoute } from "./commands/retry-job.js";
+import { registerCancelJobRoute } from "./commands/cancel-job.js";
+
 export interface JobsRoutesOptions {
   dependencies: JobsDependencies;
 }
@@ -94,4 +97,6 @@ export const jobsRoutes: FastifyPluginAsync<JobsRoutesOptions> = async (
   );
   registerListJobsRoute(app, dependencies);
   registerGetJobByIdRoute(app, dependencies);
+  registerRetryJobRoute(app, dependencies);
+  registerCancelJobRoute(app, dependencies);
 };

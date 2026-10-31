@@ -15,6 +15,11 @@ import type {
   ListJobAuditEventsParams,
 } from "@lab/database/audit-query-repository";
 
+import type {
+  JobCommandParams,
+  JobCommandResult,
+} from "@lab/database/job-repository";
+
 export interface JobsDependencies {
   authorize: (
     subject: string,
@@ -31,6 +36,9 @@ export interface JobsDependencies {
   listJobAuditEvents: (
     params: ListJobAuditEventsParams,
   ) => Promise<JobAuditEvent[]>;
+
+  retryJob: (params: JobCommandParams) => Promise<JobCommandResult>;
+  cancelJob: (params: JobCommandParams) => Promise<JobCommandResult>;
 }
 
 export interface CreateJobRouteParams {

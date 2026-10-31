@@ -46,6 +46,13 @@ function createTestApp() {
     }),
 
     getJobById: async () => null,
+    retryJob: async () => ({
+      kind: "not_found" as const,
+    }),
+
+    cancelJob: async () => ({
+      kind: "not_found" as const,
+    }),
 
     listJobAuditEvents: async () => [],
   });
