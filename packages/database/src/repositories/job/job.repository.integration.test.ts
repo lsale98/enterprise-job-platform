@@ -10,10 +10,10 @@ import {
 import { createDatabasePool } from "../../connection/pool.js";
 import { transaction } from "../../connection/transaction.js";
 
-const connectionString = process.env.DATABASE_URL;
+const connectionString = process.env.TEST_DATABASE_URL;
 
 if (!connectionString) {
-  throw new Error("DATABASE_URL must be set for integration tests");
+  throw new Error("TEST_DATABASE_URL is required for integration tests");
 }
 
 const pool = createDatabasePool({ connectionString });

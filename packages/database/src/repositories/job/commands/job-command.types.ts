@@ -17,3 +17,10 @@ export type JobCommandResult =
   | {
       kind: "conflict";
     };
+
+export interface JobExecutionParams {
+  tenantId: string;
+  jobId: string;
+  leaseOwner: string;
+  attempt: number;
+}
