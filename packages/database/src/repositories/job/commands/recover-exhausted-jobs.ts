@@ -1,6 +1,7 @@
 import type { Pool } from "pg";
 
 import { insertAuditEvent } from "../../audit/audit.repository.js";
+import { enqueueWebhookEvents } from "../../webhook/webhook.repository.js";
 
 export async function recoverExhaustedJobs(
   pool: Pool,
@@ -50,6 +51,12 @@ export async function recoverExhaustedJobs(
         actor: "system:worker-recovery",
         action: "job.failed",
         resourceId: job.id,
+      });
+
+      await enqueueWebhookEvents(client, {
+        tenantId: job.tenantId,
+        jobId: job.id,
+        eventType: "job.failed",
       });
     }
 

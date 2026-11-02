@@ -4,6 +4,8 @@ import { insertAuditEvent } from "../../audit/audit.repository.js";
 
 import type { JobExecutionParams } from "./job-command.types.js";
 
+import { enqueueWebhookEvents } from "../../webhook/webhook.repository.js";
+
 export interface CompleteJobParams extends JobExecutionParams {
   result: unknown;
 }
@@ -67,6 +69,12 @@ export async function completeJob(
       actor: `system:worker:${params.leaseOwner}`,
       action: "job.completed",
       resourceId: params.jobId,
+    });
+
+    await enqueueWebhookEvents(client, {
+      tenantId: params.tenantId,
+      jobId: params.jobId,
+      eventType: "job.completed",
     });
 
     await client.query("COMMIT");

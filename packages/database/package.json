@@ -31,6 +31,7 @@
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "migrate": "node --env-file=../../.env dist/scripts/migrate.js",
+    "migrate:test": "node --env-file=../../.env dist/scripts/migrate.js --test",
     "seed": "node --env-file=../../.env dist/scripts/seed.js",
     "test:integration": "node --env-file=../../.env --test-concurrency=1 --test \"dist/repositories/**/*.integration.test.js\""
   },
