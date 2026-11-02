@@ -85,13 +85,14 @@ async function resolvePublicAddress(
   }
 }
 
-function sendPinnedRequest(
+export function sendPinnedRequest(
   url: URL,
   address: ResolvedWebhookAddress,
   body: string,
   headers: Record<string, string>,
   timeoutMs: number,
   maxResponseBytes: number,
+  trustedCertificate?: string,
 ): Promise<SendWebhookResult> {
   return new Promise((resolve) => {
     let settled = false;
@@ -109,10 +110,21 @@ function sendPinnedRequest(
         agent: false,
         servername: url.hostname,
 
-        // The TCP connection uses the previously validated IP,
-        // while TLS still verifies the original hostname.
-        lookup: (_hostname, _options, callback) => {
-          callback(null, address.address, address.family);
+        ...(trustedCertificate ? { ca: trustedCertificate } : {}),
+
+        signal: AbortSignal.timeout(timeoutMs),
+        lookup: (_hostname, options, callback) => {
+          const resolved = {
+            address: address.address,
+            family: address.family,
+          };
+
+          if (typeof options === "object" && options.all === true) {
+            callback(null, [resolved]);
+            return;
+          }
+
+          callback(null, resolved.address, resolved.family);
         },
 
         headers: {
@@ -153,7 +165,13 @@ function sendPinnedRequest(
       req.destroy();
     });
 
-    req.on("error", () => {
+    req.on("error", (error: Error) => {
+      console.error("WEBHOOK_NETWORK_ERROR", {
+        code: (error as NodeJS.ErrnoException).code,
+        message: error.message,
+        cause: error.cause,
+      });
+
       finish(networkFailure("Webhook network request failed"));
     });
 
