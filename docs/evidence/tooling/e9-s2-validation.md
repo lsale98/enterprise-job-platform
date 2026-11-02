@@ -6,8 +6,8 @@
 - Epic: E9 — Security and Quality Assurance
 - Story: E9-S2 — CI Quality Gates
 - Branch: `ci/e9-s2-quality-gates`
-- Git revision: `[IMPLEMENTATION_COMMIT_SHA]`
-- GitHub Actions run: `[WORKFLOW_RUN_URL]`
+- Git revision: `2d72db9`
+- GitHub Actions run: `https://github.com/lsale98/enterprise-job-platform/actions/runs/41214310146`
 - Node version: v24.15.0 (local); Node.js 24 (CI)
 - pnpm version: 10.18.3
 

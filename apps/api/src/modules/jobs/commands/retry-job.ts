@@ -1,27 +1,21 @@
 import type { FastifyInstance } from "fastify";
-import { z } from "zod";
 
 import type { JobsDependencies } from "../jobs.types.js";
 
-interface Params {
-  tenantId: string;
-  jobId: string;
-}
-
-const ParamsSchema = z.strictObject({
-  tenantId: z.uuid(),
-  jobId: z.uuid(),
-});
+import {
+  JobCommandParamsSchema,
+  type JobCommandRouteParams,
+} from "@lab/contracts";
 
 export function registerRetryJobRoute(
   app: FastifyInstance,
   dependencies: JobsDependencies,
 ): void {
-  app.post<{ Params: Params }>(
+  app.post<{ Params: JobCommandRouteParams }>(
     "/v1/tenants/:tenantId/jobs/:jobId/retry",
     { preHandler: app.authenticate },
     async (request, reply) => {
-      const parsed = ParamsSchema.safeParse(request.params);
+      const parsed = JobCommandParamsSchema.safeParse(request.params);
 
       if (!parsed.success) {
         return reply.code(400).send({

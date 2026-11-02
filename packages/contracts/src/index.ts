@@ -33,3 +33,8 @@ export {
 } from "./authorization/permission.js";
 
 export type { Permission } from "./authorization/permission.js";
+
+export {
+  JobCommandParamsSchema,
+  type JobCommandRouteParams,
+} from "./jobs/job-commands.schema.js";

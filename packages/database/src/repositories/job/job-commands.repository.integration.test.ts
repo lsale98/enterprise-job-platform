@@ -5,10 +5,10 @@ import { after, before, test } from "node:test";
 import { createDatabasePool } from "../../connection/pool.js";
 import { cancelJob, retryJob } from "./job.repository.js";
 
-const connectionString = process.env.DATABASE_URL;
+const connectionString = process.env.TEST_DATABASE_URL;
 
 if (!connectionString) {
-  throw new Error("DATABASE_URL is required");
+  throw new Error("TEST_DATABASE_URL is required for integration tests");
 }
 
 const pool = createDatabasePool({ connectionString });
