@@ -3,10 +3,16 @@ import { fileURLToPath } from "node:url";
 
 import { createDatabasePool, transaction } from "../index.js";
 
-const connectionString = process.env.DATABASE_URL;
+const isTestDatabase = process.argv.includes("--test");
+
+const connectionString = isTestDatabase
+  ? process.env.TEST_DATABASE_URL
+  : process.env.DATABASE_URL;
 
 if (!connectionString) {
-  throw new Error("DATABASE_URL must be set for migrations");
+  throw new Error(
+    `${isTestDatabase ? "TEST_DATABASE_URL" : "DATABASE_URL"} is required`,
+  );
 }
 
 const pool = createDatabasePool({ connectionString });
