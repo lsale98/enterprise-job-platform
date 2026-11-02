@@ -7,7 +7,7 @@
     "build": "turbo build",
     "typecheck": "turbo typecheck",
     "test": "turbo run test",
-    "test:integration": "turbo run test:integration",
+    "test:integration": "pnpm --filter @lab/auth test:integration && pnpm --filter @lab/database test:integration && pnpm --filter worker test:integration",
     "regression": "pnpm build && pnpm typecheck && pnpm test && pnpm test:integration",
     "check": "pnpm typecheck && pnpm test",
     "format": "prettier --write .",
