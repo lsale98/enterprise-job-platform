@@ -3,7 +3,7 @@ import type { PoolClient } from "pg";
 import type {
   EnqueueWebhookEventsParams,
   EnqueueWebhookEventsResult,
-} from "./webhook.types.js";
+} from "../webhook.types.js";
 
 export async function enqueueWebhookEvents(
   client: PoolClient,
