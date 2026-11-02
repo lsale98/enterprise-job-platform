@@ -85,7 +85,11 @@ test(
 
     await terminateWorker(firstWorker);
 
-    assert.notEqual(firstWorker.process.exitCode, null);
+    assert.ok(
+      firstWorker.process.exitCode !== null ||
+        firstWorker.process.signalCode !== null,
+      "Worker must be terminated before restarting",
+    );
 
     const secondWorker = await launchWorker();
 
