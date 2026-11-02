@@ -25,6 +25,10 @@
     "./audit-query-repository": {
       "types": "./dist/repositories/audit/audit-query.repository.d.ts",
       "default": "./dist/repositories/audit/audit-query.repository.js"
+    },
+    "./webhook-repository": {
+      "types": "./dist/repositories/webhook/webhook.repository.d.ts",
+      "default": "./dist/repositories/webhook/webhook.repository.js"
     }
   },
   "scripts": {
