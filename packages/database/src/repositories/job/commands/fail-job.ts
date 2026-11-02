@@ -4,6 +4,8 @@ import { insertAuditEvent } from "../../audit/audit.repository.js";
 
 import type { JobExecutionParams } from "./job-command.types.js";
 
+import { enqueueWebhookEvents } from "../../webhook/webhook.repository.js";
+
 export interface FailJobParams extends JobExecutionParams {
   error: string;
 }
@@ -67,6 +69,12 @@ export async function failJob(
       actor: `system:worker:${params.leaseOwner}`,
       action: "job.failed",
       resourceId: params.jobId,
+    });
+
+    await enqueueWebhookEvents(client, {
+      tenantId: params.tenantId,
+      jobId: params.jobId,
+      eventType: "job.failed",
     });
 
     await client.query("COMMIT");

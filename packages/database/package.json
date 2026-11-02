@@ -25,12 +25,17 @@
     "./audit-query-repository": {
       "types": "./dist/repositories/audit/audit-query.repository.d.ts",
       "default": "./dist/repositories/audit/audit-query.repository.js"
+    },
+    "./webhook-repository": {
+      "types": "./dist/repositories/webhook/webhook.repository.d.ts",
+      "default": "./dist/repositories/webhook/webhook.repository.js"
     }
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "migrate": "node --env-file=../../.env dist/scripts/migrate.js",
+    "migrate:test": "node --env-file=../../.env dist/scripts/migrate.js --test",
     "seed": "node --env-file=../../.env dist/scripts/seed.js",
     "test:integration": "node --env-file=../../.env --test-concurrency=1 --test \"dist/repositories/**/*.integration.test.js\""
   },

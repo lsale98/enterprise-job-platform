@@ -8,8 +8,9 @@
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc --noEmit",
     "start": "node --env-file=../../.env dist/main.js",
-    "test": "node --test dist/config/*.test.js dist/processing/*.test.js dist/processing/executors/*.test.js dist/runtime/*.test.js",
-    "test:integration": "node --env-file=../../.env --test-concurrency=1 --test dist/testing/crash-recovery/*.integration.test.js"
+    "start:webhooks": "node --env-file=../../.env dist/webhooks/main.js",
+    "test": "node --test dist/config/*.test.js dist/processing/*.test.js dist/processing/executors/*.test.js dist/runtime/*.test.js dist/webhooks/signing.test.js dist/webhooks/config/*.test.js dist/webhooks/security/*.test.js dist/webhooks/runtime/*.test.js dist/webhooks/transport/*.test.js",
+    "test:integration": "node --env-file=../../.env --test-concurrency=1 --test \"dist/testing/crash-recovery/*.integration.test.js\" \"dist/webhooks/testing/*.integration.test.js\""
   },
   "dependencies": {
     "@lab/contracts": "workspace:*",
