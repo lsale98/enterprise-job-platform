@@ -1,0 +1,28 @@
+@theme inline {
+  /* Brand */
+  --color-primary: var(--ejp-color-primary);
+  --color-primary-hover: var(--ejp-color-primary-hover);
+  --color-primary-foreground: var(--ejp-color-primary-foreground);
+
+  /* Surfaces */
+  --color-background: var(--ejp-color-background);
+  --color-surface: var(--ejp-color-surface);
+  --color-foreground: var(--ejp-color-foreground);
+  --color-muted: var(--ejp-color-muted);
+
+  /* Borders */
+  --color-border: var(--ejp-color-border);
+
+  /* Semantic */
+  --color-success: var(--ejp-color-success);
+  --color-warning: var(--ejp-color-warning);
+  --color-danger: var(--ejp-color-danger);
+
+  /* Typography */
+  --font-sans: var(--ejp-font-sans);
+
+  /* Border radius */
+  --radius-sm: var(--ejp-radius-sm);
+  --radius-md: var(--ejp-radius-md);
+  --radius-lg: var(--ejp-radius-lg);
+}

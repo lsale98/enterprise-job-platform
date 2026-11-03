@@ -1,0 +1,38 @@
+:root {
+  color-scheme: light;
+
+  /* Brand */
+  --ejp-color-primary: #2563eb;
+  --ejp-color-primary-hover: #1d4ed8;
+  --ejp-color-primary-foreground: #ffffff;
+
+  /* Surfaces */
+  --ejp-color-background: #ffffff;
+  --ejp-color-surface: #f8fafc;
+  --ejp-color-foreground: #0f172a;
+  --ejp-color-muted: #64748b;
+
+  /* Borders */
+  --ejp-color-border: #e2e8f0;
+
+  /* Semantic colors */
+  --ejp-color-success: #15803d;
+  --ejp-color-warning: #b45309;
+  --ejp-color-danger: #b91c1c;
+
+  /* Typography */
+  --ejp-font-sans: Arial, Helvetica, sans-serif;
+
+  /* Radius */
+  --ejp-radius-sm: 0.375rem;
+  --ejp-radius-md: 0.5rem;
+  --ejp-radius-lg: 0.75rem;
+
+  /* Spacing */
+  --ejp-space-1: 0.25rem;
+  --ejp-space-2: 0.5rem;
+  --ejp-space-3: 0.75rem;
+  --ejp-space-4: 1rem;
+  --ejp-space-6: 1.5rem;
+  --ejp-space-8: 2rem;
+}
