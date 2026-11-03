@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+@import "@lab/ui/styles/tokens.css";
+@import "@lab/ui/styles/theme.css";
+
+@source "../../../../packages/ui/src";
+
+html {
+  min-height: 100%;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+
+  background-color: var(--ejp-color-background);
+  color: var(--ejp-color-foreground);
+
+  font-family: var(--ejp-font-sans);
+}

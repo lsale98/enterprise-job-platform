@@ -8,6 +8,10 @@ node_modules/
 **/.next/
 dist/
 **/dist/
+out/
+**/out/
+build/
+**/build/
 
 # Test artifacts
 coverage/
@@ -21,12 +25,20 @@ reports/
 .env.*
 !.env.example
 !.env.*.example
+*.pem
 
 # Logs
 *.log
 
 # OS
 .DS_Store
+
+# Next.js
+next-env.d.ts
+.vercel/
+
+# TypeScript
+*.tsbuildinfo
 
 # Authentication test artifacts
 **/.auth/
