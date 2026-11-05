@@ -2,6 +2,7 @@
   "realm": "enterprise-job-platform",
   "enabled": true,
   "displayName": "Enterprise Job Platform",
+  "loginTheme": "enterprise-job-platform",
   "registrationAllowed": false,
   "loginWithEmailAllowed": true,
   "bruteForceProtected": true,
@@ -15,8 +16,11 @@
       "secret": "${AUTH_KEYCLOAK_SECRET}",
       "standardFlowEnabled": true,
       "directAccessGrantsEnabled": false,
-      "redirectUris": ["http://localhost:3000/api/auth/callback/keycloak"],
-      "webOrigins": ["http://localhost:3000"],
+      "redirectUris": ["${EJP_WEB_URL}/api/auth/callback/keycloak"],
+      "webOrigins": ["${EJP_WEB_URL}"],
+      "attributes": {
+        "post.logout.redirect.uris": "${EJP_WEB_URL}/auth/signin"
+      },
       "protocolMappers": [
         {
           "name": "enterprise-job-platform-api-audience",

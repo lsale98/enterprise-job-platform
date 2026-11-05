@@ -1,0 +1,68 @@
+:root {
+  /* Initial branding values.
+     Align with packages/ui/src/styles/theme.css. */
+  --ejp-auth-background: #f8fafc;
+  --ejp-auth-surface: #ffffff;
+  --ejp-auth-foreground: #0f172a;
+  --ejp-auth-muted: #64748b;
+  --ejp-auth-border: #e2e8f0;
+  --ejp-auth-primary: #1d4ed8;
+  --ejp-auth-primary-hover: #1e40af;
+  --ejp-auth-radius: 12px;
+}
+
+body {
+  background: var(--ejp-auth-background);
+  color: var(--ejp-auth-foreground);
+}
+
+.login-pf,
+.login-pf body {
+  background: var(--ejp-auth-background);
+}
+
+.card-pf {
+  background: var(--ejp-auth-surface);
+  border: 1px solid var(--ejp-auth-border);
+  border-radius: var(--ejp-auth-radius);
+  box-shadow: 0 12px 36px rgb(15 23 42 / 7%);
+}
+
+#kc-header-wrapper {
+  color: var(--ejp-auth-foreground);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+#kc-page-title {
+  color: var(--ejp-auth-foreground);
+  font-weight: 600;
+}
+
+#kc-form-login label {
+  color: var(--ejp-auth-foreground);
+}
+
+#kc-form-login input[type="text"],
+#kc-form-login input[type="email"],
+#kc-form-login input[type="password"] {
+  border-radius: 8px;
+  border-color: var(--ejp-auth-border);
+}
+
+#kc-login {
+  background-color: var(--ejp-auth-primary);
+  border-color: var(--ejp-auth-primary);
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+#kc-login:hover,
+#kc-login:focus-visible {
+  background-color: var(--ejp-auth-primary-hover);
+  border-color: var(--ejp-auth-primary-hover);
+}
+
+#kc-info-wrapper {
+  color: var(--ejp-auth-muted);
+}

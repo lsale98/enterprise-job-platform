@@ -6,26 +6,63 @@ services:
       POSTGRES_PASSWORD: lab_local_only
       POSTGRES_DB: lab
     ports: ["127.0.0.1:5432:5432"]
-    volumes: ["lab-pg:/var/lib/postgresql/data"]
+    volumes:
+      - lab-pg:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U lab -d lab"]
       interval: 5s
       timeout: 3s
       retries: 20
+
+  keycloak-db:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: ${KEYCLOAK_DB_PASSWORD:?KEYCLOAK_DB_PASSWORD is required}
+    volumes:
+      - keycloak-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak -d keycloak"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+
   keycloak:
     image: quay.io/keycloak/keycloak:26.8.0
+    restart: unless-stopped
     command: ["start-dev", "--import-realm"]
+    depends_on:
+      keycloak-db:
+        condition: service_healthy
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin_local_only
+
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak-db:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:?KEYCLOAK_DB_PASSWORD is required}
+
       AUTH_KEYCLOAK_SECRET: ${AUTH_KEYCLOAK_SECRET:?AUTH_KEYCLOAK_SECRET is required}
-    ports: ["127.0.0.1:8080:8080"]
-    volumes: ["./infrastructure/keycloak:/opt/keycloak/data/import:ro"]
+      EJP_WEB_URL: ${EJP_WEB_URL:?EJP_WEB_URL is required}
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - "./infrastructure/keycloak:/opt/keycloak/data/import:ro"
+      - "./infrastructure/keycloak/themes:/opt/keycloak/themes:ro"
+
   ollama:
     image: ollama/ollama:0.12.3
     profiles: ["ai"]
-    ports: ["127.0.0.1:11434:11434"]
-    volumes: ["lab-ollama:/root/.ollama"]
+    ports:
+      - "127.0.0.1:11434:11434"
+    volumes:
+      - lab-ollama:/root/.ollama
+
 volumes:
   lab-pg:
+  keycloak-db-data:
   lab-ollama:
