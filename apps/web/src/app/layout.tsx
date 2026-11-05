@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import type { ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
 
 import "./globals.css";
+import { SessionControls } from "@/features/authentication/components/session-controls";
 
 export const metadata: Metadata = {
   title: {
@@ -22,7 +23,15 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <header className="flex items-center justify-end px-6 py-4">
+          <Suspense fallback={null}>
+            <SessionControls />
+          </Suspense>
+        </header>
+
+        {children}
+      </body>
     </html>
   );
 }
