@@ -18,4 +18,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     strategy: "jwt",
     maxAge: 60 * 60,
   },
+
+  callbacks: {
+    async jwt({ token, account }) {
+      if (account?.provider === "keycloak") {
+        token.accessToken = account.access_token;
+        token.accessTokenExpires = account.expires_at
+          ? account.expires_at * 1000
+          : undefined;
+      }
+
+      return token;
+    },
+
+    async session({ session }) {
+      return session;
+    },
+  },
 });
