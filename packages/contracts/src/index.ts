@@ -38,3 +38,28 @@ export {
   JobCommandParamsSchema,
   type JobCommandRouteParams,
 } from "./jobs/job-commands.schema.js";
+
+export {
+  UserTenantSchema,
+  CurrentUserSchema,
+} from "./users/current-user.schema.js";
+
+export type { UserTenant, CurrentUser } from "./users/current-user.schema.js";
+
+export {
+  EntryContextSchema,
+  TenantSummarySchema,
+  TenantListSchema,
+  TenantContextSchema,
+  PlatformPermissionSchema,
+  PlatformContextSchema,
+} from "./access/access-context.schema.js";
+
+export type {
+  EntryContext,
+  TenantSummary,
+  TenantList,
+  TenantContext,
+  PlatformPermission,
+  PlatformContext,
+} from "./access/access-context.schema.js";
