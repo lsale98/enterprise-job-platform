@@ -1,19 +1,22 @@
-import { Suspense, type ReactNode } from "react";
+import { Suspense } from "react";
 
-import { TenantLayoutContainer } from "@/features/tenants/containers/TenantLayoutContainer";
+import { TenantDashboardContainer } from "@/features/tenants/containers/TenantDashboardContainer";
 import { TenantDashboardSkeleton } from "@/features/tenants/components/TenantDashboardSkeleton";
 
-interface TenantLayoutProps {
+interface TenantDashboardPageProps {
   params: Promise<{
     tenantId: string;
   }>;
-  children: ReactNode;
 }
 
-export default function TenantLayout({ params, children }: TenantLayoutProps) {
+export default async function TenantDashboardPage({
+  params,
+}: TenantDashboardPageProps) {
+  const { tenantId } = await params;
+
   return (
     <Suspense fallback={<TenantDashboardSkeleton />}>
-      <TenantLayoutContainer params={params}>{children}</TenantLayoutContainer>
+      <TenantDashboardContainer tenantId={tenantId} />
     </Suspense>
   );
 }
