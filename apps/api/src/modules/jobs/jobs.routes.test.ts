@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 
 import { IdempotencyConflictError } from "@lab/database/job-repository";
 
-import { buildApp } from "../../app.js";
+import { buildJobsTestApp } from "./testing/build-jobs-test-app.js";
 import { loadConfig } from "../../config/env.js";
 
 import type { JobsDependencies } from "./jobs.types.js";
@@ -48,7 +48,7 @@ function createTestApp(overrides: Partial<JobsDependencies> = {}) {
     idempotencyKey: string;
   }> = [];
 
-  const app = buildApp(config, {
+  const app = buildJobsTestApp({
     verifyAccessToken: async (token) => {
       if (token !== "valid-token") {
         throw new Error("Invalid token");

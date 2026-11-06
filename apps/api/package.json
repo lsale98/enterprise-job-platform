@@ -9,7 +9,8 @@
     "start": "node --env-file=../../.env dist/server.js",
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "node --test dist/app.test.js dist/config/*.test.js dist/modules/jobs/*.test.js"
+    "test": "node --test dist/app.test.js dist/config/*.test.js dist/modules/jobs/*.test.js dist/modules/access/*.test.js",
+    "test:access": "node --test dist/modules/access/access.routes.test.js"
   },
   "dependencies": {
     "@lab/auth": "workspace:*",

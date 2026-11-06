@@ -3,7 +3,7 @@ import { test } from "node:test";
 
 import type { AuthenticatedIdentity } from "@lab/auth";
 
-import { buildApp } from "./app.js";
+import { buildAppCore } from "./common/app-core.js";
 import { loadConfig } from "./config/env.js";
 
 const testConfig = loadConfig({
@@ -19,7 +19,7 @@ const testIdentity: AuthenticatedIdentity = {
 };
 
 function createTestApp() {
-  const app = buildApp(testConfig, {
+  const app = buildAppCore(testConfig, {
     verifyAccessToken: async (token: string) => {
       if (token !== "valid-test-token") {
         throw new Error("Invalid token");
@@ -27,34 +27,6 @@ function createTestApp() {
 
       return testIdentity;
     },
-    authorize: async (subject, tenantId) => ({
-      allowed: true,
-      context: {
-        subject,
-        tenantId,
-        role: "operator",
-      },
-    }),
-
-    createJob: async () => {
-      throw new Error("Not implemented in this test");
-    },
-
-    listJobs: async () => ({
-      jobs: [],
-      hasMore: false,
-    }),
-
-    getJobById: async () => null,
-    retryJob: async () => ({
-      kind: "not_found" as const,
-    }),
-
-    cancelJob: async () => ({
-      kind: "not_found" as const,
-    }),
-
-    listJobAuditEvents: async () => [],
   });
 
   app.register(async (instance) => {
@@ -71,6 +43,7 @@ function createTestApp() {
 
   return app;
 }
+
 test("GET /health returns 200 OK", async (t) => {
   const app = createTestApp();
 
@@ -84,6 +57,7 @@ test("GET /health returns 200 OK", async (t) => {
   });
 
   assert.equal(response.statusCode, 200);
+
   assert.deepEqual(response.json(), {
     status: "ok",
   });
@@ -117,6 +91,7 @@ test("protected route rejects missing bearer token", async (t) => {
   });
 
   assert.equal(response.statusCode, 401);
+
   assert.equal(response.json().message, "Missing bearer token");
 });
 
@@ -136,6 +111,7 @@ test("protected route rejects malformed authorization header", async (t) => {
   });
 
   assert.equal(response.statusCode, 401);
+
   assert.equal(response.json().message, "Invalid authorization header");
 });
 
@@ -155,6 +131,7 @@ test("protected route rejects invalid access token", async (t) => {
   });
 
   assert.equal(response.statusCode, 401);
+
   assert.equal(response.json().message, "Invalid access token");
 });
 
@@ -174,6 +151,7 @@ test("protected route accepts valid access token", async (t) => {
   });
 
   assert.equal(response.statusCode, 200);
+
   assert.deepEqual(response.json(), {
     subject: testIdentity.subject,
   });
