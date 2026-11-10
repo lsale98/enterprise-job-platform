@@ -1,41 +1,34 @@
-import Fastify from "fastify";
+import { buildAppCore } from "./common/app-core.js";
 
 import type { AppConfig } from "./config/env.js";
 import type { AppDependencies } from "./composition/dependencies.js";
-import { errorHandler } from "./common/errors/error-handler.js";
-import { authenticationPlugin } from "./plugins/authentication.js";
+
+import { accessRoutes } from "./modules/access/access.routes.js";
 import { jobsRoutes } from "./modules/jobs/jobs.routes.js";
+
+export type AppRouteDependencies = Pick<
+  AppDependencies,
+  | "verifyAccessToken"
+  | "authorize"
+  | "access"
+  | "createJob"
+  | "listJobs"
+  | "getJobById"
+  | "listJobAuditEvents"
+  | "cancelJob"
+  | "retryJob"
+>;
 
 export function buildApp(
   config: AppConfig,
-  dependencies: Pick<
-    AppDependencies,
-    | "verifyAccessToken"
-    | "authorize"
-    | "createJob"
-    | "listJobs"
-    | "getJobById"
-    | "listJobAuditEvents"
-    | "cancelJob"
-    | "retryJob"
-  >,
+  dependencies: AppRouteDependencies,
 ) {
-  const app = Fastify({
-    logger: {
-      level: config.LOG_LEVEL,
-      redact: [
-        "req.headers.authorization",
-        "req.headers.cookie",
-        "res.headers.set-cookie",
-      ],
-    },
-    requestIdHeader: false,
+  const app = buildAppCore(config, {
+    verifyAccessToken: dependencies.verifyAccessToken,
   });
 
-  app.setErrorHandler(errorHandler);
-
-  app.register(authenticationPlugin, {
-    verifyAccessToken: dependencies.verifyAccessToken,
+  app.register(accessRoutes, {
+    dependencies: dependencies.access,
   });
 
   app.register(jobsRoutes, {
@@ -49,10 +42,6 @@ export function buildApp(
       cancelJob: dependencies.cancelJob,
     },
   });
-
-  app.get("/health", async () => ({
-    status: "ok",
-  }));
 
   return app;
 }

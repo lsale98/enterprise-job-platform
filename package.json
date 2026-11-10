@@ -13,7 +13,7 @@
     "regression": "pnpm build && pnpm typecheck && pnpm test && pnpm test:integration",
     "check": "pnpm typecheck && pnpm test",
     "format": "prettier --write .",
-    "lint": "eslint .",
+    "lint": "eslint . --ignore-pattern \"apps/web/**\" && pnpm --filter web exec eslint .",
     "lint:fix": "eslint . --fix",
     "format:check": "prettier --check .",
     "prepare": "husky"

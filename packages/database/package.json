@@ -29,6 +29,10 @@
     "./webhook-repository": {
       "types": "./dist/repositories/webhook/webhook.repository.d.ts",
       "default": "./dist/repositories/webhook/webhook.repository.js"
+    },
+    "./access-repository": {
+      "types": "./dist/repositories/access/access.repository.d.ts",
+      "default": "./dist/repositories/access/access.repository.js"
     }
   },
   "scripts": {
